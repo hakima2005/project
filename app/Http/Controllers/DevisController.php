@@ -91,19 +91,18 @@ class DevisController extends Controller
 {
     $devis = Devis::findOrFail($id);
 
-    // رفض جميع العروض الأخرى لنفس BC
+
     Devis::where('reference_bc', $devis->reference_bc)
         ->where('id_devis', '!=', $id)
         ->update([
             'id_statut' => 3 // Rejeté
         ]);
-
-    // اعتماد هذا العرض
+        
     $devis->update([
         'id_statut' => 2 // Retenu
     ]);
 
-    // تغيير حالة Bon de commande إلى "Attribué"
+
     BonCommande::where('reference_bc', $devis->reference_bc)
         ->update([
             'id_statut_bc' => 6
