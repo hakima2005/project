@@ -10,6 +10,8 @@ class Exercice extends Model
 
     protected $fillable = [
         'annee',
+        'date_debut',
+        'date_fin',
         'date_visee',
         'id_statut',
         'observations',

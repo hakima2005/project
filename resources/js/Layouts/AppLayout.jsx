@@ -6,19 +6,23 @@ export default function AppLayout({ children, title }) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
 
     const menuItems = [
-        { label: 'Dashboard',       href: '/dashboard',      icon: '📊' },
-        { label: 'Exercices',       href: '/exercices',      icon: '📅' },
-        { label: 'Types de montant', href: '/type-mts',       icon: '💰' },
-        { label: 'Familles',        href: '/familles',       icon: '📁' },
-        {label: 'Types de catégorie',href: '/type-categories',icon: '🏷️'},
-        { label: 'Catégories',      href: '/categories',     icon: '🗂️' },
+        { label: 'Dashboard', href: '/dashboard', icon: '📊' },
+        { label: 'Exercices', href: '/exercices', icon: '📅' },
+        { label: 'Types de montant', href: '/type-mts', icon: '💰' },
+        { label: 'Familles', href: '/familles', icon: '📁' },
+        { label: 'Types de catégorie', href: '/type-categories', icon: '🏷️' },
+        { label: 'Catégories', href: '/categories', icon: '🗂️' },
+        { label: 'Situation budgétaire', href: '/situation-budgetaire', icon: '📈' },
         { label: 'Nature de prestation', href: '/natures-prestation', icon: '🛠️' },
-        { label: 'Libellés',        href: '/libelles',       icon: '🏷️' },
-        { label: 'Bons de commande',href: '/bons-commande',  icon: '📝' },
-        { label: 'Fournisseurs',    href: '/fournisseurs',   icon: '🏢' },
-        { label: 'Devis',           href: '/devis',          icon: '💼' },
-        { label: 'Utilisateurs',    href: '/utilisateurs',   icon: '👥' },
-        { label: 'Journal',         href: '/journals',       icon: '📜' },
+        { label: 'Max Nature', href: '/max-nature', icon: '🎯' },
+        { label: 'Libellés', href: '/libelles', icon: '🏷️' },
+        { label: 'Décret RAS', href: '/decret-ras', icon: '📜' },
+        { label: 'Décret TVA', href: '/decret-tva', icon: '📜' },
+        { label: 'Bons de commande', href: '/bons-commande', icon: '📝' },
+        { label: 'Fournisseurs', href: '/fournisseurs', icon: '🏢' },
+        { label: 'Devis', href: '/devis', icon: '💼' },
+        { label: 'Utilisateurs', href: '/utilisateurs', icon: '👥' },
+        { label: 'Journal', href: '/journals', icon: '📜' },
     ];
 
     return (

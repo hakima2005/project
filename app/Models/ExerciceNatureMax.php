@@ -4,17 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ExerciceTypeMt extends Model
+class ExerciceNatureMax extends Model
 {
-    protected $table = 'exercice_type_mts';
+    protected $table = 'exercice_nature_max';
 
     protected $primaryKey = 'id';
 
     protected $fillable = [
         'id_exercice',
-        'id_type_mt',
-        'n_compte',
-        'montant',
+        'code_nat_prest',
+        'montant_max',
     ];
 
     public function exercice()
@@ -22,8 +21,8 @@ class ExerciceTypeMt extends Model
         return $this->belongsTo(Exercice::class, 'id_exercice');
     }
 
-    public function typeMt()
+    public function naturePrestation()
     {
-        return $this->belongsTo(TypeMt::class, 'id_type_mt');
+        return $this->belongsTo(NaturePrestation::class, 'code_nat_prest', 'code_nat_prest');
     }
 }

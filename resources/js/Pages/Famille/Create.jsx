@@ -16,14 +16,7 @@ export default function FamilleCreate({ exercices }) {
                                 className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" placeholder="FAM001"/>
                             {errors.code_famille && <p className="text-red-500 text-xs mt-1">{errors.code_famille}</p>}
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Exercice *</label>
-                            <select value={data.id_exercice} onChange={e => setData('id_exercice', e.target.value)}
-                                className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
-                                <option value="">-- Choisir --</option>
-                                {exercices?.map(ex => <option key={ex.id_exercice} value={ex.id_exercice}>{ex.annee}</option>)}
-                            </select>
-                        </div>
+                        
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Nom FR *</label>

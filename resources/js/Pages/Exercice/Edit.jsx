@@ -11,6 +11,8 @@ montants.forEach((item) => {
 
     const { data, setData, put, processing, errors } = useForm({
         annee: exercice.annee,
+        date_debut: exercice.date_debut ?? '',
+        date_fin: exercice.date_fin ?? '',
         date_visee: exercice.date_visee ?? '',
         observations: exercice.observations ?? '',
         montants: montantsInitiaux,
@@ -45,6 +47,41 @@ montants.forEach((item) => {
         className="flex-1 border rounded-lg px-3 py-2"
     />
 </div>
+                    <div className="grid grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Date début
+                            </label>
+                            <input
+                                type="date"
+                                value={data.date_debut}
+                                onChange={(e) => setData('date_debut', e.target.value)}
+                                className="w-full border rounded-lg px-3 py-2"
+                            />
+                            {errors.date_debut && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {errors.date_debut}
+                                </p>
+                            )}
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Date fin
+                            </label>
+                            <input
+                                type="date"
+                                value={data.date_fin}
+                                onChange={(e) => setData('date_fin', e.target.value)}
+                                className="w-full border rounded-lg px-3 py-2"
+                            />
+                            {errors.date_fin && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {errors.date_fin}
+                                </p>
+                            )}
+                        </div>
+                    </div>
 
                     <div className="space-y-4">
                         <h3 className="font-semibold text-gray-700">
