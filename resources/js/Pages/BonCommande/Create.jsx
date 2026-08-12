@@ -1,33 +1,40 @@
 import AppLayout from '@/Layouts/AppLayout';
 import { useForm, Link } from '@inertiajs/react';
 
-export default function BonCommandeCreate({ exercices, libelles, natures_prestation, statuts_bc }) {
+export default function BonCommandeCreate({ exercices, libelles, natures_prestation }) {
     const { data, setData, post, processing, errors } = useForm({
         reference_bc: '', objet: '', id_exercice: '', code_libelle: '',
-        code_nat_prest: '', montant_estimatif: 0, tva_applicable: '',
-        retenue_applicable: '', date_creation: '', date_mise_en_ligne: '',
-        date_limite_devis: '', id_statut_bc: '', observations: '',
+        code_nat_prest: '', date_creation: '', date_mise_en_ligne: '',
+        date_limite_devis: '', observations: '',
+        garanti: false,
     });
 
     return (
         <AppLayout title="Nouveau bon de commande">
             <div className="max-w-3xl bg-white rounded-xl shadow p-6">
+
                 <form onSubmit={(e) => { e.preventDefault(); post('/bons-commande'); }} className="space-y-4">
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Référence *</label>
-                            <input type="text" value={data.reference_bc} onChange={e => setData('reference_bc', e.target.value)}
-                                className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" placeholder="BC-2026-001"/>
-                            {errors.reference_bc && <p className="text-red-500 text-xs mt-1">{errors.reference_bc}</p>}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Statut *</label>
-                            <select value={data.id_statut_bc} onChange={e => setData('id_statut_bc', e.target.value)}
-                                className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
-                                <option value="">-- Choisir --</option>
-                                {statuts_bc?.map(s => <option key={s.id_statut_bc} value={s.id_statut_bc}>{s.nom_fr}</option>)}
-                            </select>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Référence *</label>
+                        <input type="text" value={data.reference_bc} onChange={e => setData('reference_bc', e.target.value)}
+                            className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" placeholder="BC-2026-001"/>
+                        {errors.reference_bc && <p className="text-red-500 text-xs mt-1">{errors.reference_bc}</p>}
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Garanti (caution requise) ?</label>
+                        <div className="flex gap-4 mt-1">
+                            <label className="flex items-center gap-2 text-sm">
+                                <input type="radio" checked={data.garanti === true}
+                                    onChange={() => setData('garanti', true)} />
+                                Oui
+                            </label>
+                            <label className="flex items-center gap-2 text-sm">
+                                <input type="radio" checked={data.garanti === false}
+                                    onChange={() => setData('garanti', false)} />
+                                Non
+                            </label>
                         </div>
                     </div>
 
@@ -54,6 +61,7 @@ export default function BonCommandeCreate({ exercices, libelles, natures_prestat
                                 <option value="">-- Choisir --</option>
                                 {natures_prestation?.map(n => <option key={n.code_nat_prest} value={n.code_nat_prest}>{n.intitule_fr}</option>)}
                             </select>
+                            <p className="text-xs text-gray-500 mt-1">Détermine la TVA / RAS appliquées automatiquement.</p>
                         </div>
                     </div>
 
@@ -68,20 +76,6 @@ export default function BonCommandeCreate({ exercices, libelles, natures_prestat
                                 </option>
                             ))}
                         </select>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-4">
-                     
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">TVA (%)</label>
-                            <input type="number" value={data.tva_applicable} onChange={e => setData('tva_applicable', e.target.value)}
-                                className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"/>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Retenue (%)</label>
-                            <input type="number" value={data.retenue_applicable} onChange={e => setData('retenue_applicable', e.target.value)}
-                                className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"/>
-                        </div>
                     </div>
 
                     <div className="grid grid-cols-3 gap-4">

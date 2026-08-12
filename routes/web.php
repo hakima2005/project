@@ -18,7 +18,7 @@ use App\Http\Controllers\DesignationController;
 use App\Http\Controllers\FournisseurController;
 use App\Http\Controllers\DevisController;
 use App\Http\Controllers\UtilisateurController;
-use App\Http\Controllerse\JournalController;
+use App\Http\Controllers\JournalController;
 use Inertia\Inertia;
 
 Route::get('/', function () { return redirect()->route('dashboard'); });
@@ -32,6 +32,21 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('max-nature', [MaxNatureController::class, 'save'])
     ->name('max-nature.save');
+
+    Route::post(
+    '/bons-commande/{reference}/changer-statut',
+    [BonCommandeController::class, 'changerStatut']
+)->name('bons-commande.changer-statut');
+
+    Route::get(
+    '/bons-commande/{reference}/attribuer',
+    [BonCommandeController::class, 'attribuer']
+)->name('bons-commande.attribuer');
+
+Route::post(
+    '/bons-commande/{reference}/attribuer',
+    [BonCommandeController::class, 'confirmerAttribution']
+)->name('bons-commande.confirmer-attribution');
 
     Route::resource('exercices',     ExerciceController::class);
     Route::resource('type-mts',      TypeMtController::class);
