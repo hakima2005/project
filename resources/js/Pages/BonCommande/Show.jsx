@@ -1,9 +1,7 @@
 import AppLayout from '@/Layouts/AppLayout';
-import { Link, useForm, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { Link, router } from '@inertiajs/react';
 
 export default function BonCommandeShow({ bon_commande, unites }) {
-    const [showForm, setShowForm] = useState(false);
 
     // =========================================================
     // STATUT
@@ -15,49 +13,6 @@ export default function BonCommandeShow({ bon_commande, unites }) {
     // Attribué
     const estAttribue =
         statutActuel === 'Attribué';
-
-    // Ajouter désignation autorisé uniquement pour :
-    // Créé / Brouillon / Publié
-    const peutAjouterDesignation =
-        ['Créé', 'Brouillon', 'Publié'].includes(statutActuel);
-
-
-    // =========================================================
-    // FORMULAIRE DESIGNATION
-    // =========================================================
-
-    const {
-        data,
-        setData,
-        post,
-        processing,
-        errors,
-        reset,
-    } = useForm({
-        reference_bc: bon_commande.reference_bc,
-        designation: '',
-        id_unite: '',
-        quantite: '',
-        prix_unitaire_ht: '',
-        tva: '20',
-        observation: '',
-    });
-
-
-    // =========================================================
-    // CALCUL TEMPS REEL
-    // =========================================================
-
-    const montant_ht =
-        (parseFloat(data.quantite) || 0) *
-        (parseFloat(data.prix_unitaire_ht) || 0);
-
-    const montant_tva =
-        montant_ht *
-        ((parseFloat(data.tva) || 0) / 100);
-
-    const montant_ttc =
-        montant_ht + montant_tva;
 
 
     // =========================================================
@@ -86,30 +41,6 @@ export default function BonCommandeShow({ bon_commande, unites }) {
                 total + parseFloat(d.montant_ttc || 0),
             0
         ) || 0;
-
-
-    // =========================================================
-    // AJOUT DESIGNATION
-    // =========================================================
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
-        post('/designations', {
-            onSuccess: () => {
-                reset(
-                    'designation',
-                    'id_unite',
-                    'quantite',
-                    'prix_unitaire_ht',
-                    'tva',
-                    'observation'
-                );
-
-                setShowForm(false);
-            },
-        });
-    };
 
 
     // =========================================================
@@ -201,17 +132,6 @@ export default function BonCommandeShow({ bon_commande, unites }) {
 
                         <div>
                             <span className="text-gray-500">
-                                Libellé:
-                            </span>
-
-                            <span className="ml-2">
-                                {bon_commande.libelle?.intitule_fr || '—'}
-                            </span>
-                        </div>
-
-
-                        <div>
-                            <span className="text-gray-500">
                                 Nature prestation:
                             </span>
 
@@ -235,13 +155,15 @@ export default function BonCommandeShow({ bon_commande, unites }) {
 
                         <div>
                             <span className="text-gray-500">
-                                Date mise en ligne:
+                                Nombre de devis reçus:
                             </span>
 
                             <span className="ml-2">
-                                {bon_commande.date_mise_en_ligne || '—'}
+                                {bon_commande.nombre_devis ?? '—'}
                             </span>
                         </div>
+
+
 
 
                         <div>
@@ -271,333 +193,8 @@ export default function BonCommandeShow({ bon_commande, unites }) {
                             Désignations
                         </h3>
 
-
-                        {/* =================================================
-                            AJOUT AUTORISÉ UNIQUEMENT :
-                            Créé / Brouillon / Publié
-                        ================================================= */}
-
-                        {peutAjouterDesignation && (
-
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    setShowForm(!showForm)
-                                }
-                                className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700"
-                            >
-                                {showForm
-                                    ? '✕ Fermer'
-                                    : '+ Ajouter désignation'}
-                            </button>
-
-                        )}
-
                     </div>
 
-
-                    {/* =================================================
-                        FORMULAIRE AJOUT DESIGNATION
-                    ================================================= */}
-
-                    {showForm &&
-                        peutAjouterDesignation && (
-
-                            <form
-                                onSubmit={handleSubmit}
-                                className="bg-gray-50 border rounded-lg p-5 mb-6 space-y-4"
-                            >
-
-                                <h4 className="font-semibold text-gray-700">
-                                    Nouvelle désignation
-                                </h4>
-
-
-                                <div className="grid grid-cols-2 gap-4">
-
-                                    {/* Désignation */}
-
-                                    <div className="col-span-2">
-
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            Désignation *
-                                        </label>
-
-                                        <input
-                                            type="text"
-                                            value={data.designation}
-                                            onChange={(e) =>
-                                                setData(
-                                                    'designation',
-                                                    e.target.value
-                                                )
-                                            }
-                                            className="w-full border rounded-lg px-3 py-2 text-sm"
-                                            placeholder="Ex : Ordinateur portable"
-                                        />
-
-                                        {errors.designation && (
-                                            <p className="text-red-500 text-xs mt-1">
-                                                {errors.designation}
-                                            </p>
-                                        )}
-
-                                    </div>
-
-
-                                    {/* Unité */}
-
-                                    <div>
-
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            Unité *
-                                        </label>
-
-                                        <select
-                                            value={data.id_unite}
-                                            onChange={(e) =>
-                                                setData(
-                                                    'id_unite',
-                                                    e.target.value
-                                                )
-                                            }
-                                            className="w-full border rounded-lg px-3 py-2 text-sm"
-                                        >
-
-                                            <option value="">
-                                                -- Choisir --
-                                            </option>
-
-                                            {unites?.map((u) => (
-
-                                                <option
-                                                    key={u.id_unite}
-                                                    value={u.id_unite}
-                                                >
-                                                    {u.libelle}
-                                                </option>
-
-                                            ))}
-
-                                        </select>
-
-                                        {errors.id_unite && (
-                                            <p className="text-red-500 text-xs mt-1">
-                                                {errors.id_unite}
-                                            </p>
-                                        )}
-
-                                    </div>
-
-
-                                    {/* Quantité */}
-
-                                    <div>
-
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            Quantité *
-                                        </label>
-
-                                        <input
-                                            type="number"
-                                            min="0"
-                                            step="0.01"
-                                            value={data.quantite}
-                                            onChange={(e) =>
-                                                setData(
-                                                    'quantite',
-                                                    e.target.value
-                                                )
-                                            }
-                                            className="w-full border rounded-lg px-3 py-2 text-sm"
-                                        />
-
-                                        {errors.quantite && (
-                                            <p className="text-red-500 text-xs mt-1">
-                                                {errors.quantite}
-                                            </p>
-                                        )}
-
-                                    </div>
-
-
-                                    {/* Prix unitaire */}
-
-                                    <div>
-
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            Prix unitaire HT *
-                                        </label>
-
-                                        <input
-                                            type="number"
-                                            min="0"
-                                            step="0.01"
-                                            value={data.prix_unitaire_ht}
-                                            onChange={(e) =>
-                                                setData(
-                                                    'prix_unitaire_ht',
-                                                    e.target.value
-                                                )
-                                            }
-                                            className="w-full border rounded-lg px-3 py-2 text-sm"
-                                        />
-
-                                        {errors.prix_unitaire_ht && (
-                                            <p className="text-red-500 text-xs mt-1">
-                                                {errors.prix_unitaire_ht}
-                                            </p>
-                                        )}
-
-                                    </div>
-
-
-                                    {/* TVA */}
-
-                                    <div>
-
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            TVA %
-                                        </label>
-
-                                        <input
-                                            type="number"
-                                            min="0"
-                                            step="0.01"
-                                            value={data.tva}
-                                            onChange={(e) =>
-                                                setData(
-                                                    'tva',
-                                                    e.target.value
-                                                )
-                                            }
-                                            className="w-full border rounded-lg px-3 py-2 text-sm"
-                                        />
-
-                                    </div>
-
-                                </div>
-
-
-                                {/* Observation */}
-
-                                <div>
-
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Observation
-                                    </label>
-
-                                    <textarea
-                                        rows={2}
-                                        value={data.observation}
-                                        onChange={(e) =>
-                                            setData(
-                                                'observation',
-                                                e.target.value
-                                            )
-                                        }
-                                        className="w-full border rounded-lg px-3 py-2 text-sm"
-                                    />
-
-                                </div>
-
-
-                                {/* Calcul */}
-
-                                <div className="bg-white border rounded-lg p-4">
-
-                                    <div className="grid grid-cols-3 gap-4 text-sm">
-
-                                        <div>
-                                            <span className="text-gray-500">
-                                                Montant HT
-                                            </span>
-
-                                            <p className="font-semibold">
-                                                {montant_ht.toLocaleString(
-                                                    'fr-MA',
-                                                    {
-                                                        minimumFractionDigits: 2,
-                                                    }
-                                                )}{' '}
-                                                MAD
-                                            </p>
-                                        </div>
-
-
-                                        <div>
-                                            <span className="text-gray-500">
-                                                Montant TVA
-                                            </span>
-
-                                            <p className="font-semibold text-orange-600">
-                                                {montant_tva.toLocaleString(
-                                                    'fr-MA',
-                                                    {
-                                                        minimumFractionDigits: 2,
-                                                    }
-                                                )}{' '}
-                                                MAD
-                                            </p>
-                                        </div>
-
-
-                                        <div>
-                                            <span className="text-gray-500">
-                                                Montant TTC
-                                            </span>
-
-                                            <p className="font-bold text-blue-700">
-                                                {montant_ttc.toLocaleString(
-                                                    'fr-MA',
-                                                    {
-                                                        minimumFractionDigits: 2,
-                                                    }
-                                                )}{' '}
-                                                MAD
-                                            </p>
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-
-                                {/* Boutons */}
-
-                                <div className="flex gap-3">
-
-                                    <button
-                                        type="submit"
-                                        disabled={processing}
-                                        className="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm hover:bg-blue-700 disabled:opacity-50"
-                                    >
-                                        {processing
-                                            ? 'Enregistrement...'
-                                            : 'Ajouter'}
-                                    </button>
-
-
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            setShowForm(false)
-                                        }
-                                        className="bg-gray-200 text-gray-700 px-5 py-2 rounded-lg text-sm hover:bg-gray-300"
-                                    >
-                                        Annuler
-                                    </button>
-
-                                </div>
-
-                            </form>
-
-                        )}
-
-
-                    {/* =================================================
-                        TABLEAU DESIGNATIONS
-                    ================================================== */}
 
                     <div className="overflow-x-auto">
 

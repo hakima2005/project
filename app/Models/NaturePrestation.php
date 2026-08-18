@@ -39,12 +39,5 @@ class NaturePrestation extends Model
             'id_type_categorie'
      );
     }
-    public function libelles()
-{
-    return $this->hasMany(
-        Libelle::class,
-        'code_nat_prest',
-        'code_nat_prest'
-    );
-}
+    
 }

@@ -23,6 +23,7 @@ class DesignationController extends Controller
             'quantite'         => 'required|numeric|min:0',
             'id_unite'         => 'nullable|integer',
             'tva'              => 'nullable|numeric|min:0',
+            'garanti'          => 'nullable|boolean',
             'prix_unitaire_ht' => $estAttribue
                 ? 'required|numeric|min:0'
                 : 'nullable|numeric|min:0',
@@ -61,6 +62,7 @@ class DesignationController extends Controller
             'tva'              => $tva,
             'montant_ttc'      => $montant_ttc,
             'observation'      => $request->observation,
+            'garanti'          => $request->boolean('garanti'),
         ]);
 
         // Recalculer les totaux du BC
@@ -70,44 +72,46 @@ class DesignationController extends Controller
     }
 
     public function edit($id)
-{
-    return inertia('Designation/Edit', [
-        'designation' => Designation::findOrFail($id),
-    ]);
-}
+    {
+        return inertia('Designation/Edit', [
+            'designation' => Designation::findOrFail($id),
+        ]);
+    }
 
-public function update(Request $request, $id)
-{
-    $designation = Designation::findOrFail($id);
+    public function update(Request $request, $id)
+    {
+        $designation = Designation::findOrFail($id);
 
-    $request->validate([
-        'designation' => 'required|string',
-        'quantite' => 'required|numeric|min:0',
-        'prix_unitaire_ht' => 'required|numeric|min:0',
-        'tva' => 'required|numeric|min:0',
-        'observation' => 'nullable|string',
-    ]);
+        $request->validate([
+            'designation'      => 'required|string',
+            'quantite'         => 'required|numeric|min:0',
+            'prix_unitaire_ht' => 'required|numeric|min:0',
+            'tva'              => 'required|numeric|min:0',
+            'garanti'          => 'nullable|boolean',
+            'observation'      => 'nullable|string',
+        ]);
 
-    $montant_ht = $request->quantite * $request->prix_unitaire_ht;
-    $montant_tva = $montant_ht * ($request->tva / 100);
-    $montant_ttc = $montant_ht + $montant_tva;
+        $montant_ht = $request->quantite * $request->prix_unitaire_ht;
+        $montant_tva = $montant_ht * ($request->tva / 100);
+        $montant_ttc = $montant_ht + $montant_tva;
 
-    $designation->update([
-        'designation' => $request->designation,
-        'quantite' => $request->quantite,
-        'prix_unitaire_ht' => $request->prix_unitaire_ht,
-        'tva' => $request->tva,
-        'montant_ht' => $montant_ht,
-        'montant_ttc' => $montant_ttc,
-        'observation' => $request->observation,
-    ]);
+        $designation->update([
+            'designation'      => $request->designation,
+            'quantite'         => $request->quantite,
+            'prix_unitaire_ht' => $request->prix_unitaire_ht,
+            'tva'              => $request->tva,
+            'montant_ht'       => $montant_ht,
+            'montant_ttc'      => $montant_ttc,
+            'observation'      => $request->observation,
+            'garanti'          => $request->boolean('garanti'),
+        ]);
 
-    $this->recalculerBC($designation->reference_bc);
+        $this->recalculerBC($designation->reference_bc);
 
-    return redirect()
-        ->route('bons-commande.show', $designation->reference_bc)
-        ->with('success', 'Désignation modifiée.');
-}
+        return redirect()
+            ->route('bons-commande.show', $designation->reference_bc)
+            ->with('success', 'Désignation modifiée.');
+    }
 
     public function destroy($id)
     {

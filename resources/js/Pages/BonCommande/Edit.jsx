@@ -4,20 +4,15 @@ import { useForm, Link } from '@inertiajs/react';
 export default function Edit({
     bon_commande,
     exercices,
-    libelles,
     natures_prestation,
 }) {
     const { data, setData, put, processing, errors } = useForm({
         reference_bc: bon_commande.reference_bc || '',
         objet: bon_commande.objet || '',
         id_exercice: bon_commande.id_exercice || '',
-        code_libelle: bon_commande.code_libelle || '',
         code_nat_prest: bon_commande.code_nat_prest || '',
-        date_creation: bon_commande.date_creation || '',
-        date_mise_en_ligne: bon_commande.date_mise_en_ligne || '',
         date_limite_devis: bon_commande.date_limite_devis || '',
         observations: bon_commande.observations || '',
-        garanti: Boolean(bon_commande.garanti),
     });
 
     const handleSubmit = (e) => {
@@ -54,39 +49,6 @@ export default function Edit({
                                 {errors.reference_bc}
                             </p>
                         )}
-                    </div>
-
-                    {/* Garantie */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Garanti (caution requise) ?
-                        </label>
-
-                        <div className="flex gap-4 mt-1">
-
-                            <label className="flex items-center gap-2 text-sm">
-                                <input
-                                    type="radio"
-                                    checked={data.garanti === true}
-                                    onChange={() =>
-                                        setData('garanti', true)
-                                    }
-                                />
-                                Oui
-                            </label>
-
-                            <label className="flex items-center gap-2 text-sm">
-                                <input
-                                    type="radio"
-                                    checked={data.garanti === false}
-                                    onChange={() =>
-                                        setData('garanti', false)
-                                    }
-                                />
-                                Non
-                            </label>
-
-                        </div>
                     </div>
 
                     {/* Objet */}
@@ -189,84 +151,8 @@ export default function Edit({
 
                     </div>
 
-                    {/* Libellé budgétaire */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Libellé budgétaire *
-                        </label>
-
-                        <select
-                            value={data.code_libelle}
-                            onChange={e =>
-                                setData(
-                                    'code_libelle',
-                                    e.target.value
-                                )
-                            }
-                            className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
-                        >
-                            <option value="">
-                                -- Choisir --
-                            </option>
-
-                            {libelles?.map(l => (
-                                <option
-                                    key={l.code_libelle}
-                                    value={l.code_libelle}
-                                >
-                                    {l.intitule_fr} — Disponible:{' '}
-                                    {Number(
-                                        l.budget_disponible
-                                    ).toLocaleString()} MAD
-                                </option>
-                            ))}
-                        </select>
-
-                        {errors.code_libelle && (
-                            <p className="text-red-500 text-xs mt-1">
-                                {errors.code_libelle}
-                            </p>
-                        )}
-                    </div>
-
-                    {/* Dates */}
-                    <div className="grid grid-cols-3 gap-4">
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Date création
-                            </label>
-
-                            <input
-                                type="date"
-                                value={data.date_creation}
-                                onChange={e =>
-                                    setData(
-                                        'date_creation',
-                                        e.target.value
-                                    )
-                                }
-                                className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Date mise en ligne
-                            </label>
-
-                            <input
-                                type="date"
-                                value={data.date_mise_en_ligne}
-                                onChange={e =>
-                                    setData(
-                                        'date_mise_en_ligne',
-                                        e.target.value
-                                    )
-                                }
-                                className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
-                            />
-                        </div>
+                    {/* Date */}
+                    <div className="grid grid-cols-2 gap-4">
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">

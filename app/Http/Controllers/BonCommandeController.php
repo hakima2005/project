@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\Models\BonCommande;
 use App\Models\Fournisseur;
-use App\Models\Libelle;
+use App\Models\Designation;
 use App\Models\Exercice;
 use App\Models\NaturePrestation;
 use App\Models\StatutBC;
@@ -40,7 +40,6 @@ class BonCommandeController extends Controller
     {
         $bcs = BonCommande::with(
             'exercice',
-            'libelle',
             'statutBC',
             'naturePrestation'
         )->get();
@@ -57,13 +56,13 @@ class BonCommandeController extends Controller
     // =========================================================
 
     public function create()
-    {
-        return Inertia::render('BonCommande/Create', [
-            'exercices'          => Exercice::all(),
-            'libelles'           => Libelle::all(),
-            'natures_prestation' => NaturePrestation::all(),
-        ]);
-    }
+{
+    return Inertia::render('BonCommande/Create', [
+        'exercices'          => Exercice::all(),
+        'natures_prestation' => NaturePrestation::all(),
+        'unites'             => Unite::all(),
+    ]);
+}
 
 
     // =========================================================
@@ -71,104 +70,78 @@ class BonCommandeController extends Controller
     // =========================================================
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'reference_bc'   => 'required|string|max:50|unique:bons_commande,reference_bc',
-            'objet'          => 'required|string',
-            'id_exercice'    => 'required|integer',
-            'code_libelle'   => 'required|string',
-            'code_nat_prest' => 'required|string',
-            'garanti'        => 'boolean',
-        ]);
+{
+    
+    $request->validate([
+        'reference_bc'   => 'required|string|max:50|unique:bons_commande,reference_bc',
+        'objet'          => 'required|string',
+        'id_exercice'    => 'required|integer',
+        'code_nat_prest' => 'required|string',
+        'designations'                     => 'nullable|array',
+        'designations.*.designation'       => 'required_with:designations|string',
+        'designations.*.id_unite'          => 'nullable|integer',
+        'designations.*.quantite'          => 'required_with:designations|numeric|min:0',
+        'designations.*.prix_unitaire_ht'  => 'nullable|numeric|min:0',
+        'designations.*.tva'               => 'nullable|numeric|min:0',
+        'designations.*.garanti'           => 'nullable|boolean',
+        'designations.*.observation'       => 'nullable|string',
+    ]);
 
+    $tauxTva = DecretTva::where('code_nat_prest', $request->code_nat_prest)
+        ->orderByDesc('date')->value('taux') ?? 0;
 
-        // =====================================================
-        // RECHERCHE DU TAUX TVA
-        // =====================================================
-        //
-        // On prend le dernier décret TVA enregistré
-        // pour la nature de prestation sélectionnée.
-        //
-        // IMPORTANT :
-        // On ne filtre PAS par date_creation du BC.
-        //
-        // =====================================================
+    $tauxRas = DecretRas::where('code_nat_prest', $request->code_nat_prest)
+        ->orderByDesc('date')->value('taux') ?? 0;
 
-        $tauxTva = DecretTva::where(
-            'code_nat_prest',
-            $request->code_nat_prest
-        )
-            ->orderByDesc('date')
-            ->value('taux') ?? 0;
+    $statutInitial = StatutBC::orderBy('ordre')->first();
 
+    $bc = \DB::transaction(function () use ($request, $tauxTva, $tauxRas, $statutInitial) {
 
-        // =====================================================
-        // RECHERCHE DU TAUX RAS
-        // =====================================================
-
-        $tauxRas = DecretRas::where(
-            'code_nat_prest',
-            $request->code_nat_prest
-        )
-            ->orderByDesc('date')
-            ->value('taux') ?? 0;
-
-
-        // =====================================================
-        // STATUT INITIAL
-        // =====================================================
-
-        $statutInitial = StatutBC::orderBy('ordre')->first();
-
-
-        // =====================================================
-        // CREATION DU BON DE COMMANDE
-        // =====================================================
-
-        BonCommande::create([
+        $bc = BonCommande::create([
             'reference_bc'       => $request->reference_bc,
-
             'objet'              => $request->objet,
-
             'id_exercice'        => $request->id_exercice,
-
-            'code_libelle'       => $request->code_libelle,
-
             'code_nat_prest'     => $request->code_nat_prest,
-
             'id_statut_bc'       => $statutInitial?->id_statut_bc,
-
-            // TVA récupérée depuis decret_tva
             'tva_applicable'     => $tauxTva,
-
-            // RAS récupérée depuis decret_ras
             'retenue_applicable' => $tauxRas,
-
             'date_creation'      => $request->date_creation,
-
             'date_mise_en_ligne' => $request->date_mise_en_ligne,
-
             'date_limite_devis'  => $request->date_limite_devis,
-
             'observations'       => $request->observations,
-
-            'garanti'            => $request->boolean('garanti'),
-
             'montant_estimatif'  => 0,
         ]);
 
+        $numOrdre = 1;
 
-        // =====================================================
-        // MESSAGE DE CONFIRMATION
-        // =====================================================
+        foreach ($request->input('designations', []) as $ligne) {
 
-        return redirect()
-            ->route('bons-commande.index')
-            ->with(
-                'success',
-                "Bon de commande créé — TVA {$tauxTva}% et RAS {$tauxRas}% appliqués selon les décrets enregistrés."
-            );
-    }
+            if (empty($ligne['designation'])) {
+                continue;
+            }
+
+            Designation::create([
+                'reference_bc'     => $bc->reference_bc,
+                'num_ordre'        => $numOrdre++,
+                'designation'      => $ligne['designation'],
+                'id_unite'         => $ligne['id_unite'] ?? null,
+                'quantite'         => $ligne['quantite'] ?? 0,
+                'prix_unitaire_ht' => null, // pas encore attribué
+                'montant_ht'       => 0,
+                'tva'              => $ligne['tva'] ?? 0,
+                'montant_ttc'      => 0,
+                'observation'      => $ligne['observation'] ?? null,
+                'garanti'          => (bool) ($ligne['garanti'] ?? false),
+            ]);
+        }
+
+        return $bc;
+    });
+
+    return redirect()
+        ->route('bons-commande.index')
+        ->with('success', "Bon de commande créé — TVA {$tauxTva}% et RAS {$tauxRas}% appliqués selon les décrets enregistrés.");
+}
 
 
     // =========================================================
@@ -179,7 +152,6 @@ class BonCommandeController extends Controller
     {
         $bc = BonCommande::with(
             'exercice',
-            'libelle',
             'statutBC',
             'naturePrestation',
             'designations.unite',
@@ -211,7 +183,6 @@ class BonCommandeController extends Controller
 
             'exercices' => Exercice::all(),
 
-            'libelles' => Libelle::all(),
 
             'natures_prestation' => NaturePrestation::all(),
         ]);
@@ -453,7 +424,7 @@ class BonCommandeController extends Controller
                 //
                 // =================================================
 
-                if ($bc->garanti) {
+                if ($bc->designations()->where('garanti', true)->exists()) {
 
                     $data['caution_restituee'] = false;
                 }
@@ -523,7 +494,7 @@ class BonCommandeController extends Controller
                 // CAUTION
                 // =================================================
 
-                if ($bc->garanti) {
+                if ($bc->designations()->where('garanti', true)->exists()) {
 
                     $data['caution_restituee'] = false;
                 }
@@ -587,6 +558,7 @@ class BonCommandeController extends Controller
         $bc = BonCommande::with([
             'devis.fournisseur',
             'fournisseurAttribue',
+            'designations',
         ])
             ->where(
                 'reference_bc',
@@ -719,7 +691,7 @@ class BonCommandeController extends Controller
         // CAUTION
         // =====================================================
 
-        if ($bc->garanti) {
+        if ($bc->designations()->where('garanti', true)->exists()) {
 
             $rules['justificatif_caution'] =
                 'required|file|mimes:pdf,jpg,jpeg,png|max:5120';

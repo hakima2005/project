@@ -19,22 +19,37 @@ class DecretRasController extends Controller
     public function create()
     {
         return Inertia::render('DecretRas/Create', [
-            'natures' => NaturePrestation::all(),
+            'natures' => NaturePrestation::orderBy('intitule_fr')->get(),
         ]);
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'date'            => 'required|date',
-            'code_nat_prest'  => 'required|string|exists:nature_prestations,code_nat_prest',
-            'taux'            => 'required|numeric|min:0|max:100',
+        $validated = $request->validate([
+            'date'    => 'required|date',
+            'taux'    => 'required|array',
+            'taux.*'  => 'nullable|numeric|min:0|max:100',
         ]);
 
-        DecretRas::create($request->all());
+        $created = 0;
+
+        foreach ($validated['taux'] as $codeNatPrest => $taux) {
+
+            if ($taux === null || $taux === '') {
+                continue;
+            }
+
+            DecretRas::create([
+                'date'           => $validated['date'],
+                'code_nat_prest' => $codeNatPrest,
+                'taux'           => $taux,
+            ]);
+
+            $created++;
+        }
 
         return redirect()->route('decret-ras.index')
-            ->with('success', 'Décret RAS ajouté avec succès.');
+            ->with('success', "{$created} décret(s) RAS ajouté(s) avec succès.");
     }
 
     public function edit($id)

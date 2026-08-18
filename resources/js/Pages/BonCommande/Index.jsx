@@ -516,9 +516,7 @@ export default function BonCommandeIndex({
                                     Montant
                                 </th>
 
-                                <th className="text-left p-3">
-                                    Date mise en ligne
-                                </th>
+
 
                                 <th className="text-left p-3">
                                     Date limite
@@ -671,16 +669,6 @@ export default function BonCommandeIndex({
                                             </td>
 
 
-                                            {/* DATE MISE EN LIGNE */}
-
-                                            <td className="p-3">
-
-                                                {
-                                                    bc.date_mise_en_ligne ||
-                                                    '—'
-                                                }
-
-                                            </td>
 
 
                                             {/* DATE LIMITE */}

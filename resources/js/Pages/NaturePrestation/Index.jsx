@@ -1,16 +1,24 @@
 import AppLayout from '@/Layouts/AppLayout';
 import { Link } from '@inertiajs/react';
 
-export default function NaturePrestationIndex({ natures }) {
-    console.log(natures);
-
+export default function NaturePrestationIndex({ natures = [] }) {
     return (
         <AppLayout title="Natures de prestation">
+
             <div className="bg-white rounded-xl shadow p-6">
+
+                {/* Header */}
                 <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-md font-semibold text-gray-700">
-                        Liste des natures de prestation
-                    </h3>
+
+                    <div>
+                        <h3 className="text-lg font-semibold text-gray-700">
+                            Natures de prestation
+                        </h3>
+
+                        <p className="text-sm text-gray-500 mt-1">
+                            Liste des natures de prestation
+                        </p>
+                    </div>
 
                     <Link
                         href="/natures-prestation/create"
@@ -18,77 +26,150 @@ export default function NaturePrestationIndex({ natures }) {
                     >
                         + Nouvelle nature
                     </Link>
+
                 </div>
 
-                <table className="w-full text-sm">
-                    <thead>
-                        <tr className="bg-gray-50 text-gray-600">
-                            <th className="text-left p-3">Code</th>
-                            <th className="text-left p-3">Intitulé FR</th>
-                            <th className="text-left p-3">Type de catégorie</th>
-                            <th className="text-left p-3">Statut</th>
-                            <th className="text-left p-3">Actions</th>
-                        </tr>
-                    </thead>
+                {/* Table */}
+                <div className="overflow-x-auto">
 
-                    <tbody>
-                        {natures?.length > 0 ? (
-                            natures.map((n) => (
-                                <tr
-                                    key={n.code_nat_prest}
-                                    className="border-t hover:bg-gray-50"
-                                >
-                                    <td className="p-3 font-mono text-blue-600">
-                                        {n.code_nat_prest}
-                                    </td>
+                    <table className="w-full text-sm">
 
-                                    <td className="p-3">
-                                        {n.intitule_fr}
-                                    </td>
+                        <thead>
+                            <tr className="bg-gray-50 text-gray-600">
 
-                                    <td className="p-3">
-                                        {n.typeCategorie?.libelle || 'N/A'}
-                                    </td>
+                                <th className="text-left p-3 border-b">
+                                    Code
+                                </th>
 
-                                    <td className="p-3">
-                                        <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">
-                                            {n.statut?.nom_fr || 'N/A'}
-                                        </span>
-                                    </td>
+                                <th className="text-left p-3 border-b">
+                                    Intitulé FR
+                                </th>
 
-                                    <td className="p-3 flex gap-2">
-                                        <Link
-                                            href={`/natures-prestation/${n.code_nat_prest}/edit`}
-                                            className="text-orange-600 hover:underline"
-                                        >
-                                            Modifier
-                                        </Link>
+                                <th className="text-left p-3 border-b">
+                                    Type de catégorie
+                                </th>
 
-                                        <Link
-                                            href={`/natures-prestation/${n.code_nat_prest}`}
-                                            method="delete"
-                                            as="button"
-                                            className="text-red-600 hover:underline"
-                                            onClick={(e) => {
-                                                if (!confirm('Supprimer ?'))
-                                                    e.preventDefault();
-                                            }}
-                                        >
-                                            Supprimer
-                                        </Link>
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="5" className="p-6 text-center text-gray-400">
-                                    Aucune nature de prestation
-                                </td>
+                                <th className="text-left p-3 border-b">
+                                    Statut
+                                </th>
+
+                                <th className="text-left p-3 border-b">
+                                    Actions
+                                </th>
+
                             </tr>
-                        )}
-                    </tbody>
-                </table>
+                        </thead>
+
+                        <tbody>
+
+                            {natures.length > 0 ? (
+
+                                natures.map((nature) => (
+
+                                    <tr
+                                        key={nature.code_nat_prest}
+                                        className="border-b hover:bg-gray-50"
+                                    >
+
+                                        {/* Code */}
+                                        <td className="p-3 font-mono text-blue-600">
+                                            {nature.code_nat_prest}
+                                        </td>
+
+                                        {/* Intitulé */}
+                                        <td className="p-3">
+                                            {nature.intitule_fr}
+                                        </td>
+
+                                        {/* Type catégorie */}
+                                        <td className="p-3">
+
+                                            {nature.type_categorie?.libelle
+                                                ? nature.type_categorie.libelle
+                                                : 'Type non défini'}
+
+                                        </td>
+
+                                        {/* Statut */}
+                                        <td className="p-3">
+
+                                            {nature.statut?.nom_fr ? (
+
+                                                <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">
+                                                    {nature.statut.nom_fr}
+                                                </span>
+
+                                            ) : (
+
+                                                <span className="text-gray-400">
+                                                    N/A
+                                                </span>
+
+                                            )}
+
+                                        </td>
+
+                                        {/* Actions */}
+                                        <td className="p-3">
+
+                                            <div className="flex gap-3">
+
+                                                <Link
+                                                    href={`/natures-prestation/${nature.code_nat_prest}/edit`}
+                                                    className="text-orange-600 hover:underline"
+                                                >
+                                                    Modifier
+                                                </Link>
+
+                                                <Link
+                                                    href={`/natures-prestation/${nature.code_nat_prest}`}
+                                                    method="delete"
+                                                    as="button"
+                                                    className="text-red-600 hover:underline"
+                                                    onClick={(e) => {
+                                                        if (
+                                                            !confirm(
+                                                                'Voulez-vous vraiment supprimer cette nature de prestation ?'
+                                                            )
+                                                        ) {
+                                                            e.preventDefault();
+                                                        }
+                                                    }}
+                                                >
+                                                    Supprimer
+                                                </Link>
+
+                                            </div>
+
+                                        </td>
+
+                                    </tr>
+
+                                ))
+
+                            ) : (
+
+                                <tr>
+
+                                    <td
+                                        colSpan="5"
+                                        className="p-6 text-center text-gray-400"
+                                    >
+                                        Aucune nature de prestation
+                                    </td>
+
+                                </tr>
+
+                            )}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
             </div>
+
         </AppLayout>
     );
 }

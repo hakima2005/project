@@ -1,131 +1,245 @@
 import AppLayout from '@/Layouts/AppLayout';
+import { router } from '@inertiajs/react';
 
-export default function CategorieIndex({ natures }) {
+export default function CategorieIndex({
+    exercices = [],
+    typesCategories = [],
+    id_exercice = '',
+}) {
+    const handleExerciceChange = (e) => {
+        const value = e.target.value;
 
+        router.get(
+            '/categories',
+            {
+                id_exercice: value,
+            },
+            {
+                preserveState: false,
+                preserveScroll: true,
+            }
+        );
+    };
 
-    
+    const formatMontant = (montant) => {
+        if (
+            montant === null ||
+            montant === undefined ||
+            montant === ''
+        ) {
+            return '-';
+        }
+
+        return (
+            Number(montant).toLocaleString('fr-FR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            }) + ' MAD'
+        );
+    };
+
     return (
         <AppLayout title="Catégories budgétaires">
 
             <div className="bg-white rounded-xl shadow p-6">
 
-                <div className="mb-6">
-                    <h3 className="text-md font-semibold text-gray-700">
-                        Liste des catégories budgétaires
-                    </h3>
+                {/* Header */}
+                <div className="flex items-center justify-between mb-6">
+
+                    <div>
+                        <h3 className="text-lg font-semibold text-gray-700">
+                            Catégories budgétaires
+                        </h3>
+
+                        <p className="text-sm text-gray-500 mt-1">
+                            Liste des types de catégories et des natures
+                            de prestations
+                        </p>
+                    </div>
+
+                    {/* Exercice */}
+                    <div className="flex items-center gap-3">
+
+                        <label className="text-sm font-medium text-gray-700">
+                            Exercice
+                        </label>
+
+                        <select
+                            value={id_exercice || ''}
+                            onChange={handleExerciceChange}
+                            className="border border-gray-300 rounded-lg px-4 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                            <option value="">
+                                -- Choisir --
+                            </option>
+
+                            {exercices.map((exercice) => (
+                                <option
+                                    key={exercice.id_exercice}
+                                    value={exercice.id_exercice}
+                                >
+                                    {exercice.annee}
+                                </option>
+                            ))}
+                        </select>
+
+                    </div>
+
                 </div>
 
-                <table className="w-full text-sm">
+                {/* Tableau */}
+                {id_exercice ? (
 
-                    <thead>
-                        <tr className="bg-gray-50 text-gray-600">
-                            <th className="text-left p-3">Type catégorie</th>
-                            <th className="text-left p-3">Nature de prestation</th>
-                            <th className="text-left p-3">Libellé</th>
-                            <th className="text-left p-3">Budget affecté</th>
-                            <th className="text-left p-3">Budget engagé</th>
-                            <th className="text-left p-3">Budget disponible</th>
-                        </tr>
-                    </thead>
+                    <div className="overflow-x-auto">
 
-                    <tbody>
+                        <table className="w-full text-sm border-collapse">
 
-                        {natures?.length > 0 ? (
+                            <thead>
+                                <tr className="bg-gray-50 text-gray-600">
 
-                            natures.flatMap((nature) =>
+                                    <th className="text-left p-3 border-b">
+                                        Type catégorie
+                                    </th>
 
-                                nature.libelles.length > 0 ? (
+                                    <th className="text-left p-3 border-b">
+                                        Code nature
+                                    </th>
 
-                                    nature.libelles.map((libelle, index) => (
+                                    <th className="text-left p-3 border-b">
+                                        Nature de prestation
+                                    </th>
 
-                                        <tr
-                                            key={libelle.code_libelle}
-                                            className="border-t hover:bg-gray-50"
-                                        >
+                                    <th className="text-right p-3 border-b">
+                                        Budget affecté
+                                    </th>
 
-                                            {index === 0 && (
-                                                <>
-                                                    <td
-                                                        rowSpan={nature.libelles.length}
-                                                        className="p-3 align-top"
-                                                    >
-                                                        {nature.type_categorie?.libelle}
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {typesCategories.length > 0 ? (
+
+                                    typesCategories.map((type) => {
+
+                                        const naturePrestations =
+                                            type.naturePrestations || [];
+
+                                        /*
+                                         * Type sans nature de prestation
+                                         */
+                                        if (
+                                            naturePrestations.length === 0
+                                        ) {
+
+                                            return (
+                                                <tr
+                                                    key={type.id_type_categorie}
+                                                    className="border-b hover:bg-gray-50"
+                                                >
+
+                                                    <td className="p-3 font-medium">
+                                                        {type.libelle}
                                                     </td>
 
-                                                    <td
-                                                        rowSpan={nature.libelles.length}
-                                                        className="p-3 align-top"
-                                                    >
+                                                    <td className="p-3 text-gray-400">
+                                                        -
+                                                    </td>
+
+                                                    <td className="p-3 text-gray-400 italic">
+                                                        Aucune nature de prestation
+                                                    </td>
+
+                                                    <td className="p-3 text-right font-semibold">
+                                                        {formatMontant(
+                                                            type.budget_affecte
+                                                        )}
+                                                    </td>
+
+                                                </tr>
+                                            );
+                                        }
+
+                                        /*
+                                         * Type avec une ou plusieurs
+                                         * natures de prestation
+                                         */
+                                        return naturePrestations.map(
+                                            (nature, index) => (
+
+                                                <tr
+                                                    key={`${type.id_type_categorie}-${nature.code_nat_prest}`}
+                                                    className="border-b hover:bg-gray-50"
+                                                >
+
+                                                    {/* Type catégorie */}
+                                                    {index === 0 ? (
+                                                        <td
+                                                            rowSpan={
+                                                                naturePrestations.length
+                                                            }
+                                                            className="p-3 align-top font-medium"
+                                                        >
+                                                            {type.libelle}
+                                                        </td>
+                                                    ) : null}
+
+                                                    {/* Code nature */}
+                                                    <td className="p-3">
+                                                        {nature.code_nat_prest}
+                                                    </td>
+
+                                                    {/* Nature de prestation */}
+                                                    <td className="p-3">
                                                         {nature.intitule_fr}
                                                     </td>
-                                                </>
-                                            )}
 
-                                            <td className="p-3">
-                                                {libelle.intitule_fr}
-                                            </td>
+                                                    {/* Budget affecté */}
+                                                    {index === 0 ? (
+                                                        <td
+                                                            rowSpan={
+                                                                naturePrestations.length
+                                                            }
+                                                            className="p-3 text-right align-top font-semibold"
+                                                        >
+                                                            {formatMontant(
+                                                                type.budget_affecte
+                                                            )}
+                                                        </td>
+                                                    ) : null}
 
-                                            <td className="p-3">
-                                                {Number(libelle.budget_affecte).toLocaleString()} MAD
-                                            </td>
+                                                </tr>
 
-                                            <td className="p-3">
-                                                {Number(libelle.budget_engage).toLocaleString()} MAD
-                                            </td>
-
-                                            <td className="p-3">
-                                                {Number(libelle.budget_disponible).toLocaleString()} MAD
-                                            </td>
-
-                                        </tr>
-
-                                    ))
+                                            )
+                                        );
+                                    })
 
                                 ) : (
 
-                                    <tr
-                                        key={nature.code_nat_prest}
-                                        className="border-t"
-                                    >
-
-                                        <td className="p-3">
-                                            {nature.type_categorie?.libelle}
+                                    <tr>
+                                        <td
+                                            colSpan="4"
+                                            className="p-6 text-center text-gray-400"
+                                        >
+                                            Aucun type de catégorie disponible.
                                         </td>
-
-                                        <td className="p-3">
-                                            {nature.intitule_fr}
-                                        </td>
-
-                                        <td className="p-3 text-gray-400 italic">
-                                            Aucun libellé
-                                        </td>
-
-                                        <td className="p-3">-</td>
-                                        <td className="p-3">-</td>
-                                        <td className="p-3">-</td>
-
                                     </tr>
 
-                                )
+                                )}
 
-                            )
+                            </tbody>
 
-                        ) : (
+                        </table>
 
-                            <tr>
-                                <td
-                                    colSpan="6"
-                                    className="p-6 text-center text-gray-400"
-                                >
-                                    Aucune donnée disponible.
-                                </td>
-                            </tr>
+                    </div>
 
-                        )}
+                ) : (
 
-                    </tbody>
+                    <div className="p-10 text-center text-gray-400">
+                        Veuillez sélectionner un exercice.
+                    </div>
 
-                </table>
+                )}
 
             </div>
 

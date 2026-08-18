@@ -1,134 +1,183 @@
 import AppLayout from '@/Layouts/AppLayout';
-import { router } from '@inertiajs/react';
-import { useState } from 'react';
+import { Link, router } from '@inertiajs/react';
 
-function formatMontant(v) {
-    return new Intl.NumberFormat('fr-FR', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    }).format(v || 0);
-}
-
-export default function MaxNatureIndex({ exercices, id_exercice, lignes }) {
-
-    const [montants, setMontants] = useState(
-        Object.fromEntries(
-            lignes.map((l) => [l.code_nat_prest, l.montant_max ?? 0])
-        )
-    );
-
-    const [saving, setSaving] = useState(false);
-
+export default function MaxNatureIndex({
+    exercices = [],
+    id_exercice = '',
+    maxNatures = [],
+}) {
     const handleExerciceChange = (e) => {
+        const value = e.target.value;
+
         router.get(
             '/max-nature',
-            { id_exercice: e.target.value },
-            { preserveState: false }
+            {
+                id_exercice: value,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+            }
         );
     };
 
-    const handleMontantChange = (code, value) => {
-        setMontants({
-            ...montants,
-            [code]: Number(value)
-        });
-    };
-
-    const handleSave = () => {
-        setSaving(true);
-
-        const payload = {
-            id_exercice: id_exercice,
-            montants: Object.entries(montants).map(([code_nat_prest, montant_max]) => ({
-                code_nat_prest,
-                montant_max: Number(montant_max),
-            })),
-        };
-
-        router.post('/max-nature', payload, {
-            preserveScroll: true,
-            onFinish: () => setSaving(false),
-        });
+    const formatMontant = (montant) => {
+        return (
+            Number(montant || 0).toLocaleString('fr-FR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            }) + ' MAD'
+        );
     };
 
     return (
         <AppLayout title="Max Nature">
-            <div className="space-y-6">
 
-                <div className="bg-white rounded-xl shadow p-6">
-                    <div className="flex justify-between items-center">
-                        <h3 className="font-semibold text-gray-700">
-                            Montants max par nature de prestation
+            <div className="bg-white rounded-xl shadow p-6">
+
+                {/* Header */}
+                <div className="flex items-center justify-between mb-6">
+
+                    <div>
+                        <h3 className="text-lg font-semibold text-gray-700">
+                            Max Nature
                         </h3>
 
-                        <div>
-                            <label className="mr-2">Exercice</label>
-                            <select
-                                value={id_exercice || ''}
-                                onChange={handleExerciceChange}
-                                className="border rounded-lg px-3 py-2"
+                        <p className="text-sm text-gray-500 mt-1">
+                            Montants maximum par nature de prestation
+                        </p>
+                    </div>
+
+                    {/* زر الإضافة اللي كان موجود عندك أصلاً */}
+                    <Link
+                        href="/max-nature/create"
+                        className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700"
+                    >
+                        + Ajouter une max nature
+                    </Link>
+
+                </div>
+
+
+                {/* Exercice */}
+                <div className="flex items-center gap-3 mb-6">
+
+                    <label className="text-sm font-medium text-gray-700">
+                        Exercice
+                    </label>
+
+                    <select
+                        value={id_exercice || ''}
+                        onChange={handleExerciceChange}
+                        className="border border-gray-300 rounded-lg px-4 py-2 bg-white"
+                    >
+                        <option value="">
+                            -- Choisir --
+                        </option>
+
+                        {exercices.map((exercice) => (
+                            <option
+                                key={exercice.id_exercice}
+                                value={exercice.id_exercice}
                             >
-                                <option value="">-- Choisir --</option>
-                                {exercices.map((ex) => (
-                                    <option key={ex.id_exercice} value={ex.id_exercice}>
-                                        {ex.annee}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
+                                {exercice.annee}
+                            </option>
+                        ))}
+
+                    </select>
+
                 </div>
 
-                <div className="bg-white shadow rounded-xl p-6">
-                    <table className="w-full text-sm">
-                        <thead>
-                            <tr className="bg-gray-50">
-                                <th className="p-3 text-left">Code</th>
-                                <th className="p-3 text-left">Nature de prestation</th>
-                                <th className="p-3 text-right">Montant max</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {lignes.length > 0 ? (
-                                lignes.map((l) => (
-                                    <tr key={l.code_nat_prest} className="border-t">
-                                        <td className="p-3 font-mono text-blue-600">{l.code_nat_prest}</td>
-                                        <td className="p-3">{l.intitule_fr}</td>
-                                        <td className="p-3 text-right">
-                                            <input
-                                                type="number"
-                                                min="0"
-                                                value={montants[l.code_nat_prest] ?? ''}
-                                                onChange={(e) =>
-                                                    handleMontantChange(l.code_nat_prest, e.target.value)
-                                                }
-                                                className="border rounded px-3 py-2 w-32 text-right"
-                                            />
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan="4" className="p-6 text-center text-gray-400">
-                                        Aucune nature de prestation
-                                    </td>
+
+                {/* Listing */}
+                {id_exercice ? (
+
+                    <div className="overflow-x-auto">
+
+                        <table className="w-full text-sm border-collapse">
+
+                            <thead>
+
+                                <tr className="bg-gray-50 text-gray-600">
+
+                                    <th className="text-left p-3 border-b">
+                                        Code
+                                    </th>
+
+                                    <th className="text-left p-3 border-b">
+                                        Nature de prestation
+                                    </th>
+
+                                    <th className="text-right p-3 border-b">
+                                        Montant maximum
+                                    </th>
+
                                 </tr>
-                            )}
-                        </tbody>
-                    </table>
 
-                    <div className="mt-5 text-right">
-                        <button
-                            onClick={handleSave}
-                            disabled={saving}
-                            className="bg-blue-600 text-white px-5 py-2 rounded-lg disabled:opacity-50"
-                        >
-                            {saving ? 'Enregistrement...' : 'Enregistrer'}
-                        </button>
+                            </thead>
+
+
+                            <tbody>
+
+                                {maxNatures.length > 0 ? (
+
+                                    maxNatures.map((item) => (
+
+                                        <tr
+                                            key={item.id}
+                                            className="border-b hover:bg-gray-50"
+                                        >
+
+                                            <td className="p-3 font-mono text-blue-600">
+                                                {item.code_nat_prest}
+                                            </td>
+
+                                            <td className="p-3">
+                                                {item.nature_prestation?.intitule_fr || '-'}
+                                            </td>
+
+                                            <td className="p-3 text-right font-medium">
+                                                {formatMontant(
+                                                    item.montant_max
+                                                )}
+                                            </td>
+
+                                        </tr>
+
+                                    ))
+
+                                ) : (
+
+                                    <tr>
+
+                                        <td
+                                            colSpan="3"
+                                            className="p-6 text-center text-gray-400"
+                                        >
+                                            Aucun montant maximum enregistré
+                                            pour cet exercice.
+                                        </td>
+
+                                    </tr>
+
+                                )}
+
+                            </tbody>
+
+                        </table>
+
                     </div>
-                </div>
+
+                ) : (
+
+                    <div className="p-10 text-center text-gray-400">
+                        Veuillez sélectionner un exercice.
+                    </div>
+
+                )}
 
             </div>
+
         </AppLayout>
     );
 }

@@ -3,74 +3,139 @@
 namespace App\Http\Controllers;
 
 use App\Models\Exercice;
-use App\Models\NaturePrestation;
 use App\Models\ExerciceNatureMax;
+use App\Models\NaturePrestation;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class MaxNatureController extends Controller
 {
+    /**
+     * Listing des Max Nature enregistrées par exercice
+     */
     public function index(Request $request)
     {
-        $exercices = Exercice::orderByDesc('annee')->get();
-
-        $idExercice = $request->input(
+        $exercices = Exercice::orderBy('annee')->get([
             'id_exercice',
-            $exercices->first()->id_exercice ?? null
-        );
+            'annee',
+        ]);
 
-        $lignes = [];
+        $idExercice = $request->input('id_exercice');
+
+        $maxNatures = collect();
 
         if ($idExercice) {
-
-            // Toutes les natures de prestation existantes
-            $natures = NaturePrestation::with('typeCategorie')->get();
-
-            // Montants max déjà enregistrés pour cet exercice
-            $maxExistants = ExerciceNatureMax::where('id_exercice', $idExercice)
-                ->get()
-                ->keyBy('code_nat_prest');
-
-            $lignes = $natures->map(function ($nature) use ($maxExistants) {
-                return [
-                    'code_nat_prest'  => $nature->code_nat_prest,
-                    'intitule_fr'     => $nature->intitule_fr,
-                    'type_categorie'  => $nature->typeCategorie?->libelle,
-                    'montant_max'     => (float) ($maxExistants[$nature->code_nat_prest]->montant_max ?? 0),
-                ];
-            })->values();
+            $maxNatures = ExerciceNatureMax::with('naturePrestation')
+                ->where('id_exercice', $idExercice)
+                ->orderBy('code_nat_prest')
+                ->get([
+                    'id',
+                    'id_exercice',
+                    'code_nat_prest',
+                    'montant_max',
+                ]);
         }
 
         return Inertia::render('MaxNature/Index', [
-            'exercices'   => $exercices,
+            'exercices' => $exercices,
             'id_exercice' => $idExercice,
-            'lignes'      => $lignes,
+            'maxNatures' => $maxNatures,
         ]);
     }
 
-    public function save(Request $request)
+
+    /**
+     * Page d'ajout d'une Max Nature
+     */
+    public function create()
     {
-        $request->validate([
-            'id_exercice'                => 'required|integer|exists:exercices,id_exercice',
-            'montants'                   => 'required|array',
-            'montants.*.code_nat_prest'  => 'required|string|exists:nature_prestations,code_nat_prest',
-            'montants.*.montant_max'     => 'required|numeric|min:0',
+        $exercices = Exercice::orderBy('annee')->get([
+            'id_exercice',
+            'annee',
         ]);
 
-        foreach ($request->input('montants') as $ligne) {
+        /*
+         * On récupère TOUTES les natures de prestation.
+         *
+         * Pas de Type catégorie ici.
+         * Pas de filtre sur le statut.
+         *
+         * Si une nouvelle nature est créée dans
+         * nature_prestations, elle apparaîtra automatiquement
+         * dans cette page.
+         */
+        $natures = NaturePrestation::orderBy('code_nat_prest')
+            ->get([
+                'code_nat_prest',
+                'intitule_fr',
+                'intitule_ar',
+            ]);
+
+        return Inertia::render('MaxNature/Create', [
+            'exercices' => $exercices,
+            'natures' => $natures,
+        ]);
+    }
+
+
+    /**
+     * Enregistrer les Max Nature
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'id_exercice' => [
+                'required',
+                'exists:exercices,id_exercice',
+            ],
+
+            'natures' => [
+                'required',
+                'array',
+                'min:1',
+            ],
+
+            'natures.*.code_nat_prest' => [
+                'required',
+                'exists:nature_prestations,code_nat_prest',
+            ],
+
+            'natures.*.montant_max' => [
+                'required',
+                'numeric',
+                'min:0',
+            ],
+        ]);
+
+        /*
+         * كل Nature كتتسجل بالنسبة للـ Exercice المختار.
+         *
+         * إذا كانت موجودة:
+         * update montant_max
+         *
+         * إذا ما كانتش موجودة:
+         * create record جديدة
+         */
+        foreach ($validated['natures'] as $nature) {
+
             ExerciceNatureMax::updateOrCreate(
                 [
-                    'id_exercice'     => $request->input('id_exercice'),
-                    'code_nat_prest'  => $ligne['code_nat_prest'],
+                    'id_exercice' => $validated['id_exercice'],
+                    'code_nat_prest' => $nature['code_nat_prest'],
                 ],
                 [
-                    'montant_max' => $ligne['montant_max'],
+                    'montant_max' => $nature['montant_max'],
                 ]
             );
         }
 
         return redirect()
-            ->route('max-nature.index', ['id_exercice' => $request->input('id_exercice')])
-            ->with('success', 'Montants max enregistrés.');
+            ->route('max-nature.index', [
+                'id_exercice' => $validated['id_exercice'],
+            ])
+            ->with(
+                'success',
+                'Les montants maximum ont été enregistrés avec succès.'
+            );
     }
 }
