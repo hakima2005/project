@@ -21,7 +21,8 @@ class DevisETLService
      * 3. Parser les informations
      * 4. Chercher le BC
      * 5. Chercher ou créer le fournisseur
-     * 6. Créer le devis
+     * 6. Vérifier les doublons
+     * 7. Créer le devis
      */
     public function import(UploadedFile $file): Devis
     {
@@ -71,7 +72,6 @@ class DevisETLService
          */
 
         $required = [
-
             'reference_devis',
             'date_devis',
             'reference_bc',
@@ -80,7 +80,6 @@ class DevisETLService
             'montant_tva',
             'montant_retenue',
             'montant_ttc',
-
         ];
 
         foreach ($required as $field) {
@@ -119,28 +118,19 @@ class DevisETLService
          * =====================================================
          * 6. RECHERCHE DU FOURNISSEUR
          * =====================================================
-         *
-         * On cherche d'abord par raison sociale.
-         *
-         * Si aucun fournisseur n'existe,
-         * on cherche par IF + raison sociale.
-         *
-         * Ensuite par ICE + raison sociale.
-         *
-         * Si toujours rien :
-         * création automatique du fournisseur.
          */
 
+        /*
+         * Recherche d'abord par raison sociale.
+         */
         $fournisseur = Fournisseur::where(
             'raison_sociale',
             $data['raison_sociale']
         )->first();
 
-
         /*
-         * Recherche par IF + raison sociale
+         * Recherche par IF + raison sociale.
          */
-
         if (
             !$fournisseur &&
             !empty($data['identifiant_fiscal'])
@@ -158,11 +148,9 @@ class DevisETLService
                 ->first();
         }
 
-
         /*
-         * Recherche par ICE + raison sociale
+         * Recherche par ICE + raison sociale.
          */
-
         if (
             !$fournisseur &&
             !empty($data['ICE'])
@@ -179,7 +167,6 @@ class DevisETLService
                 )
                 ->first();
         }
-
 
         /*
          * =====================================================
@@ -210,10 +197,39 @@ class DevisETLService
                 ]);
         }
 
+        /*
+         * =====================================================
+         * 7. VERIFICATION DES DOUBLONS
+         * =====================================================
+         *
+         * Un même fournisseur ne peut pas avoir deux devis
+         * avec la même référence.
+         */
+
+        $devisExistant = Devis::where(
+            'reference_devis',
+            $data['reference_devis']
+        )
+            ->where(
+                'id_fournisseur',
+                $fournisseur->id_fournisseur
+            )
+            ->first();
+
+        if ($devisExistant) {
+
+            throw new RuntimeException(
+                "Ce devis existe déjà : "
+                . $data['reference_devis']
+                . " pour le fournisseur "
+                . $fournisseur->raison_sociale
+                . "."
+            );
+        }
 
         /*
          * =====================================================
-         * 7. CREATION DU DEVIS
+         * 8. CREATION DU DEVIS
          * =====================================================
          */
 
@@ -289,7 +305,6 @@ class DevisETLService
     ): array {
 
         $data = [];
-
 
         /*
          * -----------------------------------------------------
