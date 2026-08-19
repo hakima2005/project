@@ -7,6 +7,7 @@ use App\Models\BonCommande;
 use App\Models\Fournisseur;
 use App\Models\DecretTva;
 use App\Models\DecretRas;
+use App\Services\ETL\DevisETLService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -31,6 +32,51 @@ class DevisController extends Controller
             'devis' => $devis,
         ]);
     }
+
+    /**
+ * =========================================================
+ * IMPORT DOCUMENT FOURNISSEUR VIA ETL
+ * =========================================================
+ */
+public function importDocument(
+    Request $request,
+    DevisETLService $etl
+) {
+    $request->validate([
+        'document' => [
+            'required',
+            'file',
+            'mimes:pdf',
+            'max:10240',
+        ],
+    ]);
+
+    try {
+
+        $devis = $etl->import(
+            $request->file('document')
+        );
+
+        return redirect()
+            ->route('devis.index')
+            ->with(
+                'success',
+                "Document importé avec succès. Devis {$devis->reference_devis} créé automatiquement."
+            );
+
+    } catch (\Throwable $e) {
+
+        return back()->withErrors([
+            'document' => $e->getMessage(),
+        ]);
+    }
+}
+
+
+    public function import()
+{
+    return Inertia::render('Devis/Import');
+}
 
 
     /**

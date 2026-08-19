@@ -19,6 +19,7 @@ use App\Http\Controllers\FournisseurController;
 use App\Http\Controllers\DevisController;
 use App\Http\Controllers\UtilisateurController;
 use App\Http\Controllers\JournalController;
+use App\Http\Controllers\ProfileController;
 
 
 Route::get('/', function () {
@@ -43,11 +44,30 @@ Route::middleware(['auth'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Profile
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/profile', [ProfileController::class, 'edit'])
+        ->name('profile.edit');
+
+    Route::patch('/profile', [ProfileController::class, 'update'])
+        ->name('profile.update');
+
+    Route::delete('/profile', [ProfileController::class, 'destroy'])
+        ->name('profile.destroy');
+
+
+    /*
+    |--------------------------------------------------------------------------
     | Exercices
     |--------------------------------------------------------------------------
     */
 
-    Route::resource('exercices', ExerciceController::class);
+    Route::resource(
+        'exercices',
+        ExerciceController::class
+    );
 
 
     /*
@@ -56,7 +76,10 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::resource('type-mts', TypeMtController::class);
+    Route::resource(
+        'type-mts',
+        TypeMtController::class
+    );
 
 
     /*
@@ -65,7 +88,10 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::resource('familles', FamilleController::class);
+    Route::resource(
+        'familles',
+        FamilleController::class
+    );
 
 
     /*
@@ -84,9 +110,6 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     | Catégories
     |--------------------------------------------------------------------------
-    |
-    | Page de listing uniquement.
-    |
     */
 
     Route::get(
@@ -111,11 +134,6 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     | Max Nature
     |--------------------------------------------------------------------------
-    |
-    | Index  : liste par exercice
-    | Create : formulaire avec toutes les natures
-    | Store  : enregistrement des montants maximum
-    |
     */
 
     Route::get(
@@ -159,9 +177,6 @@ Route::middleware(['auth'])->group(function () {
         '/situation-budgetaire/{situationBudgetaire}',
         [SituationBudgetaireController::class, 'destroy']
     )->name('situation-budgetaire.destroy');
-
-
-    
 
 
     /*
@@ -263,17 +278,32 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     | Devis
     |--------------------------------------------------------------------------
+    |
+    | IMPORTANT :
+    | Les routes spécifiques "import" doivent être
+    | placées AVANT /devis/{devi}.
+    |--------------------------------------------------------------------------
     */
 
-    Route::resource(
-        'devis',
-        DevisController::class
-    );
+    Route::get(
+        '/devis/import',
+        [DevisController::class, 'import']
+    )->name('devis.import');
+
+    Route::post(
+        '/devis/import-document',
+        [DevisController::class, 'importDocument']
+    )->name('devis.import-document');
 
     Route::post(
         '/devis/{id}/retenir',
         [DevisController::class, 'retenir']
     )->name('devis.retenir');
+
+    Route::resource(
+        'devis',
+        DevisController::class
+    );
 
 
     /*

@@ -626,135 +626,119 @@ class BonCommandeController extends Controller
     // =========================================================
 
     public function confirmerAttribution(
-        Request $request,
+    Request $request,
+    $reference
+) {
+    $bc = BonCommande::where(
+        'reference_bc',
         $reference
-    ) {
-        $bc = BonCommande::where(
-            'reference_bc',
-            $reference
-        )->firstOrFail();
+    )->firstOrFail();
 
 
-        if ((int) $bc->id_statut_bc !== 3) {
+    if ((int) $bc->id_statut_bc !== 3) {
 
-            return back()->with(
-                'error',
-                'Le BC doit être publié avant l’attribution.'
-            );
-        }
-
-
-        if (!$bc->date_limite_devis) {
-
-            return back()->with(
-                'error',
-                'Aucune date limite de devis n’est définie.'
-            );
-        }
-
-
-        $dateLimite = Carbon::parse(
-            $bc->date_limite_devis
-        )->startOfDay();
-
-
-        $aujourdHui = Carbon::today();
-
-
-        if ($aujourdHui->lt($dateLimite)) {
-
-            return back()->with(
-                'error',
-                "L'attribution est interdite avant la date limite des devis ({$dateLimite->format('d/m/Y')})."
-            );
-        }
-
-
-        // =====================================================
-        // VALIDATION
-        // =====================================================
-
-        $rules = [
-
-            'id_fournisseur_attribue' =>
-                'required|integer|exists:fournisseurs,id_fournisseur',
-
-            'nombre_devis' =>
-                'required|integer|min:1',
-
-            'montant_ht' =>
-                'required|numeric|min:0',
-        ];
-
-
-        // =====================================================
-        // CAUTION
-        // =====================================================
-
-        if ($bc->designations()->where('garanti', true)->exists()) {
-
-            $rules['justificatif_caution'] =
-                'required|file|mimes:pdf,jpg,jpeg,png|max:5120';
-
-        } else {
-
-            $rules['justificatif_caution'] =
-                'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120';
-        }
-
-
-        $validated =
-            $request->validate($rules);
-
-
-        // =====================================================
-        // DONNEES ATTRIBUTION
-        // =====================================================
-
-        $data = [
-
-            'id_fournisseur_attribue' =>
-                $validated['id_fournisseur_attribue'],
-
-            'nombre_devis' =>
-                $validated['nombre_devis'],
-
-            'montant_ht' =>
-                $validated['montant_ht'],
-
-            'id_statut_bc' => 6,
-        ];
-
-
-        // =====================================================
-        // JUSTIFICATIF CAUTION
-        // =====================================================
-
-        if ($request->hasFile(
-            'justificatif_caution'
-        )) {
-
-            $data['justificatif_caution'] =
-                $request
-                    ->file('justificatif_caution')
-                    ->store(
-                        'justificatifs-caution',
-                        'public'
-                    );
-        }
-
-
-        $bc->update($data);
-
-
-        return redirect()
-            ->route('bons-commande.index')
-            ->with(
-                'success',
-                'Le bon de commande a été attribué avec succès.'
-            );
+        return back()->with(
+            'error',
+            'Le BC doit être publié avant l’attribution.'
+        );
     }
 
+
+    if (!$bc->date_limite_devis) {
+
+        return back()->with(
+            'error',
+            'Aucune date limite de devis n’est définie.'
+        );
+    }
+
+
+    $dateLimite = Carbon::parse(
+        $bc->date_limite_devis
+    )->startOfDay();
+
+
+    $aujourdHui = Carbon::today();
+
+
+    if ($aujourdHui->lt($dateLimite)) {
+
+        return back()->with(
+            'error',
+            "L'attribution est interdite avant la date limite des devis ({$dateLimite->format('d/m/Y')})."
+        );
+    }
+
+
+    // =====================================================
+    // VALIDATION
+    // =====================================================
+
+    $validated = $request->validate([
+
+        'id_fournisseur_attribue' =>
+            'required|integer|exists:fournisseurs,id_fournisseur',
+
+        'nombre_devis' =>
+            'required|integer|min:1',
+
+        'montant_ht' =>
+            'required|numeric|min:0',
+
+        'justificatif_caution' =>
+            'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+    ]);
+
+
+    // =====================================================
+    // DONNEES ATTRIBUTION
+    // =====================================================
+
+    $data = [
+
+        'id_fournisseur_attribue' =>
+            $validated['id_fournisseur_attribue'],
+
+        'nombre_devis' =>
+            $validated['nombre_devis'],
+
+        'montant_ht' =>
+            $validated['montant_ht'],
+
+        'id_statut_bc' => 6,
+    ];
+
+
+    // =====================================================
+    // JUSTIFICATIF CAUTION
+    // =====================================================
+
+    if ($request->hasFile('justificatif_caution')) {
+
+        $data['justificatif_caution'] =
+            $request
+                ->file('justificatif_caution')
+                ->store(
+                    'justificatifs-caution',
+                    'public'
+                );
+    }
+
+
+    // =====================================================
+    // ENREGISTREMENT
+    // =====================================================
+
+    $bc->update($data);
+
+
+    return redirect()
+        ->route('bons-commande.index')
+        ->with(
+            'success',
+            'Le bon de commande a été attribué avec succès.'
+        );
+}
 
     // =========================================================
     // DESTROY

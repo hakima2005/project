@@ -62,12 +62,23 @@ export default function DevisIndex({
                     </h3>
 
 
-                    <Link
-                        href={route('devis.create')}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700"
-                    >
-                        + Nouveau devis
-                    </Link>
+                    <div className="flex gap-3">
+
+                        <Link
+                            href={route('devis.import')}
+                            className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700"
+                        >
+                            + Importer un document
+                        </Link>
+
+                        <Link
+                            href={route('devis.create')}
+                            className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700"
+                        >
+                            + Nouveau devis
+                        </Link>
+
+                    </div>
 
                 </div>
 
@@ -219,12 +230,11 @@ export default function DevisIndex({
                                                     py-1
                                                     rounded
                                                     text-xs
-                                                    ${
-                                                        d.statut?.nom_fr ===
+                                                    ${d.statut?.nom_fr ===
                                                         'retenu'
-                                                            ? 'bg-green-100 text-green-700'
-                                                            : d.statut?.nom_fr ===
-                                                              'rejeté'
+                                                        ? 'bg-green-100 text-green-700'
+                                                        : d.statut?.nom_fr ===
+                                                            'rejeté'
                                                             ? 'bg-red-100 text-red-700'
                                                             : 'bg-gray-100 text-gray-700'
                                                     }
@@ -261,19 +271,19 @@ export default function DevisIndex({
                                                 {d.statut?.nom_fr !==
                                                     'retenu' && (
 
-                                                    <button
-                                                        type="button"
-                                                        onClick={() =>
-                                                            retenir(
-                                                                d.id_devis
-                                                            )
-                                                        }
-                                                        className="text-green-600 hover:underline"
-                                                    >
-                                                        Retenir
-                                                    </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                retenir(
+                                                                    d.id_devis
+                                                                )
+                                                            }
+                                                            className="text-green-600 hover:underline"
+                                                        >
+                                                            Retenir
+                                                        </button>
 
-                                                )}
+                                                    )}
 
 
                                                 {/* Supprimer */}

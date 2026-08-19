@@ -8,12 +8,15 @@ class BonCommande extends Model {
     public $incrementing = false;
     protected $keyType = 'string';
     protected $fillable = [
-        'reference_bc', 'objet', 'date_creation', 'date_mise_en_ligne',
-        'date_limite_devis', 'id_statut_bc', 'observations',
-        'id_exercice',  'code_nat_prest',
-        'montant_estimatif', 'tva_applicable', 'retenue_applicable', 'montant_ttc',
-        'motif_annulation', 'caution_restituee', 'date_annulation',
-    ];
+    'reference_bc', 'objet', 'date_creation', 'date_mise_en_ligne',
+    'date_limite_devis', 'id_statut_bc', 'observations',
+    'id_exercice', 'code_nat_prest',
+    'montant_estimatif', 'tva_applicable', 'retenue_applicable', 'montant_ttc',
+    'motif_annulation', 'caution_restituee', 'date_annulation',
+    'id_fournisseur_attribue', 'nombre_devis', 'montant_ht', 'montant_tva',
+    'justificatif_caution', 'piece_jointe_fournisseur', 'documents_annulation',
+    'piece_jointe_facture', 'bon_livraison',
+];
 
     protected $casts = [
         'caution_restituee' => 'boolean',
