@@ -1,6 +1,9 @@
 import AppLayout from '@/Layouts/AppLayout';
+import Card from '@/Components/ui/Card';
+import Button from '@/Components/ui/Button';
 import { Link, useForm } from '@inertiajs/react';
 import { useState } from 'react';
+import { Plus, Minus, ShieldAlert } from 'lucide-react';
 
 export default function Attribution({
     bon_commande,
@@ -8,6 +11,10 @@ export default function Attribution({
     fournisseurs,
 }) {
     const [showNewFournisseur, setShowNewFournisseur] = useState(false);
+
+    // Corrigé : la garantie se vérifie sur les désignations, pas sur le BC
+    const estGaranti =
+        bon_commande.designations?.some((d) => d.garanti) || false;
 
     const { data, setData, post, processing, errors } = useForm({
         id_fournisseur_attribue:
@@ -59,11 +66,7 @@ export default function Attribution({
                 {/* =====================================================
                     INFORMATIONS BC
                 ====================================================== */}
-                <div className="bg-white rounded-xl shadow p-6">
-
-                    <h2 className="text-lg font-semibold text-gray-700 mb-4">
-                        Attribution du bon de commande
-                    </h2>
+                <Card title="Attribution du bon de commande">
 
                     <div className="grid grid-cols-2 gap-4 text-sm">
 
@@ -72,7 +75,7 @@ export default function Attribution({
                                 Référence
                             </span>
 
-                            <p className="font-semibold">
+                            <p className="font-semibold text-navy-900">
                                 {bon_commande.reference_bc}
                             </p>
                         </div>
@@ -93,7 +96,7 @@ export default function Attribution({
                             </span>
 
                             <p className="font-semibold">
-                                {bon_commande.garanti ? 'Oui' : 'Non'}
+                                {estGaranti ? 'Oui' : 'Non'}
                             </p>
                         </div>
 
@@ -108,17 +111,13 @@ export default function Attribution({
                         </div>
 
                     </div>
-                </div>
+                </Card>
 
 
                 {/* =====================================================
                     DEVIS REÇUS
                 ====================================================== */}
-                <div className="bg-white rounded-xl shadow p-6">
-
-                    <h3 className="font-semibold text-gray-700 mb-4">
-                        Devis reçus ({devis?.length || 0})
-                    </h3>
+                <Card title={`Devis reçus (${devis?.length || 0})`}>
 
                     {devis?.length > 0 ? (
 
@@ -127,9 +126,9 @@ export default function Attribution({
                             <table className="w-full text-sm">
 
                                 <thead>
-                                    <tr className="bg-gray-50">
+                                    <tr className="bg-cream-100">
 
-                                        <th className="text-left p-3">
+                                        <th className="text-left p-3 rounded-l-lg">
                                             Référence
                                         </th>
 
@@ -145,7 +144,7 @@ export default function Attribution({
                                             Montant HT
                                         </th>
 
-                                        <th className="text-left p-3">
+                                        <th className="text-left p-3 rounded-r-lg">
                                             Montant TTC
                                         </th>
 
@@ -158,7 +157,7 @@ export default function Attribution({
 
                                         <tr
                                             key={d.id_devis}
-                                            className="border-t"
+                                            className="border-t border-cream-200"
                                         >
 
                                             <td className="p-3">
@@ -183,7 +182,7 @@ export default function Attribution({
                                                 MAD
                                             </td>
 
-                                            <td className="p-3">
+                                            <td className="p-3 font-medium text-navy-800">
                                                 {Number(
                                                     d.montant_ttc || 0
                                                 ).toLocaleString('fr-MA', {
@@ -210,17 +209,13 @@ export default function Attribution({
 
                     )}
 
-                </div>
+                </Card>
 
 
                 {/* =====================================================
                     FORMULAIRE ATTRIBUTION
                 ====================================================== */}
-                <div className="bg-white rounded-xl shadow p-6">
-
-                    <h3 className="font-semibold text-gray-700 mb-5">
-                        Informations d'attribution
-                    </h3>
+                <Card title="Informations d'attribution">
 
                     <form
                         onSubmit={submit}
@@ -232,7 +227,7 @@ export default function Attribution({
                         ================================================== */}
                         <div>
 
-                            <label className="block text-sm font-medium mb-1">
+                            <label className="block text-sm font-medium mb-1 text-gray-700">
                                 Fournisseur attribué *
                             </label>
 
@@ -244,7 +239,7 @@ export default function Attribution({
                                         e.target.value
                                     )
                                 }
-                                className="w-full border rounded-lg px-3 py-2"
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
                             >
 
                                 <option value="">
@@ -265,7 +260,7 @@ export default function Attribution({
                             </select>
 
                             {errors.id_fournisseur_attribue && (
-                                <p className="text-red-500 text-xs mt-1">
+                                <p className="text-rose-500 text-xs mt-1">
                                     {errors.id_fournisseur_attribue}
                                 </p>
                             )}
@@ -280,11 +275,21 @@ export default function Attribution({
                                         !showNewFournisseur
                                     )
                                 }
-                                className="mt-2 text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                                className={`mt-3 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium border-2 border-dashed transition-colors
+                                ${showNewFournisseur
+                                    ? 'border-rose-300 text-rose-600 hover:bg-rose-50'
+                                    : 'border-gold-400 text-gold-700 hover:bg-gold-50 hover:border-gold-500'
+                                }`}
                             >
-                                {showNewFournisseur
-                                    ? '− Fermer le formulaire'
-                                    : '+ Ajouter un nouveau fournisseur'}
+                                {showNewFournisseur ? (
+                                    <>
+                                        <Minus size={16} /> Fermer le formulaire
+                                    </>
+                                ) : (
+                                    <>
+                                        <Plus size={16} /> Ajouter un nouveau fournisseur
+                                    </>
+                                )}
                             </button>
 
                         </div>
@@ -295,16 +300,16 @@ export default function Attribution({
                         ====================================================== */}
                         {showNewFournisseur && (
 
-                            <div className="border border-blue-200 bg-blue-50 rounded-xl p-5">
+                            <div className="border border-navy-200 bg-navy-50 rounded-xl p-5">
 
                                 <div className="flex items-center justify-between mb-5">
 
                                     <div>
-                                        <h4 className="font-semibold text-blue-800">
+                                        <h4 className="font-display font-semibold text-navy-900">
                                             Ajouter un nouveau fournisseur
                                         </h4>
 
-                                        <p className="text-xs text-blue-600 mt-1">
+                                        <p className="text-xs text-navy-600 mt-1">
                                             Le fournisseur n'existe pas encore
                                             dans la liste.
                                         </p>
@@ -317,7 +322,7 @@ export default function Attribution({
 
                                     {/* Raison sociale */}
                                     <div>
-                                        <label className="block text-sm font-medium mb-1">
+                                        <label className="block text-sm font-medium mb-1 text-gray-700">
                                             Raison sociale *
                                         </label>
 
@@ -331,14 +336,14 @@ export default function Attribution({
                                                 handleNouveauFournisseurChange
                                             }
                                             placeholder="Ex: Atlas Bureau SARL"
-                                            className="w-full border rounded-lg px-3 py-2 bg-white"
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-sm"
                                         />
                                     </div>
 
 
                                     {/* Identifiant fiscal */}
                                     <div>
-                                        <label className="block text-sm font-medium mb-1">
+                                        <label className="block text-sm font-medium mb-1 text-gray-700">
                                             Identifiant fiscal
                                         </label>
 
@@ -351,14 +356,14 @@ export default function Attribution({
                                             onChange={
                                                 handleNouveauFournisseurChange
                                             }
-                                            className="w-full border rounded-lg px-3 py-2 bg-white"
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-sm"
                                         />
                                     </div>
 
 
                                     {/* ICE */}
                                     <div>
-                                        <label className="block text-sm font-medium mb-1">
+                                        <label className="block text-sm font-medium mb-1 text-gray-700">
                                             ICE
                                         </label>
 
@@ -371,14 +376,14 @@ export default function Attribution({
                                             onChange={
                                                 handleNouveauFournisseurChange
                                             }
-                                            className="w-full border rounded-lg px-3 py-2 bg-white"
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-sm"
                                         />
                                     </div>
 
 
                                     {/* RC */}
                                     <div>
-                                        <label className="block text-sm font-medium mb-1">
+                                        <label className="block text-sm font-medium mb-1 text-gray-700">
                                             RC
                                         </label>
 
@@ -391,14 +396,14 @@ export default function Attribution({
                                             onChange={
                                                 handleNouveauFournisseurChange
                                             }
-                                            className="w-full border rounded-lg px-3 py-2 bg-white"
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-sm"
                                         />
                                     </div>
 
 
                                     {/* CNSS */}
                                     <div>
-                                        <label className="block text-sm font-medium mb-1">
+                                        <label className="block text-sm font-medium mb-1 text-gray-700">
                                             CNSS
                                         </label>
 
@@ -411,14 +416,14 @@ export default function Attribution({
                                             onChange={
                                                 handleNouveauFournisseurChange
                                             }
-                                            className="w-full border rounded-lg px-3 py-2 bg-white"
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-sm"
                                         />
                                     </div>
 
 
                                     {/* Téléphone */}
                                     <div>
-                                        <label className="block text-sm font-medium mb-1">
+                                        <label className="block text-sm font-medium mb-1 text-gray-700">
                                             Téléphone
                                         </label>
 
@@ -432,14 +437,14 @@ export default function Attribution({
                                                 handleNouveauFournisseurChange
                                             }
                                             placeholder="05..."
-                                            className="w-full border rounded-lg px-3 py-2 bg-white"
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-sm"
                                         />
                                     </div>
 
 
                                     {/* Email */}
                                     <div>
-                                        <label className="block text-sm font-medium mb-1">
+                                        <label className="block text-sm font-medium mb-1 text-gray-700">
                                             Email
                                         </label>
 
@@ -453,14 +458,14 @@ export default function Attribution({
                                                 handleNouveauFournisseurChange
                                             }
                                             placeholder="contact@example.ma"
-                                            className="w-full border rounded-lg px-3 py-2 bg-white"
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-sm"
                                         />
                                     </div>
 
 
                                     {/* Représentation */}
                                     <div>
-                                        <label className="block text-sm font-medium mb-1">
+                                        <label className="block text-sm font-medium mb-1 text-gray-700">
                                             Représentation
                                         </label>
 
@@ -473,7 +478,7 @@ export default function Attribution({
                                             onChange={
                                                 handleNouveauFournisseurChange
                                             }
-                                            className="w-full border rounded-lg px-3 py-2 bg-white"
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-sm"
                                         />
                                     </div>
 
@@ -483,7 +488,7 @@ export default function Attribution({
                                 {/* Activité principale */}
                                 <div className="mt-4">
 
-                                    <label className="block text-sm font-medium mb-1">
+                                    <label className="block text-sm font-medium mb-1 text-gray-700">
                                         Activité principale
                                     </label>
 
@@ -496,7 +501,7 @@ export default function Attribution({
                                         onChange={
                                             handleNouveauFournisseurChange
                                         }
-                                        className="w-full border rounded-lg px-3 py-2 bg-white"
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-sm"
                                     />
 
                                 </div>
@@ -505,9 +510,9 @@ export default function Attribution({
                                 {/* Bouton */}
                                 <div className="flex gap-3 mt-5">
 
-                                    <button
+                                    <Button
                                         type="button"
-                                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                                        variant="primary"
                                         onClick={() => {
                                             alert(
                                                 'Le formulaire est prêt. Nous allons maintenant le connecter au backend.'
@@ -515,17 +520,17 @@ export default function Attribution({
                                         }}
                                     >
                                         Ajouter le fournisseur
-                                    </button>
+                                    </Button>
 
-                                    <button
+                                    <Button
                                         type="button"
+                                        variant="secondary"
                                         onClick={() =>
                                             setShowNewFournisseur(false)
                                         }
-                                        className="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300"
                                     >
                                         Fermer
-                                    </button>
+                                    </Button>
 
                                 </div>
 
@@ -541,7 +546,7 @@ export default function Attribution({
 
                             <div>
 
-                                <label className="block text-sm font-medium mb-1">
+                                <label className="block text-sm font-medium mb-1 text-gray-700">
                                     Nombre de devis reçus *
                                 </label>
 
@@ -555,11 +560,11 @@ export default function Attribution({
                                             e.target.value
                                         )
                                     }
-                                    className="w-full border rounded-lg px-3 py-2"
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
                                 />
 
                                 {errors.nombre_devis && (
-                                    <p className="text-red-500 text-xs mt-1">
+                                    <p className="text-rose-500 text-xs mt-1">
                                         {errors.nombre_devis}
                                     </p>
                                 )}
@@ -569,7 +574,7 @@ export default function Attribution({
 
                             <div>
 
-                                <label className="block text-sm font-medium mb-1">
+                                <label className="block text-sm font-medium mb-1 text-gray-700">
                                     Montant HT attribué *
                                 </label>
 
@@ -584,11 +589,11 @@ export default function Attribution({
                                             e.target.value
                                         )
                                     }
-                                    className="w-full border rounded-lg px-3 py-2"
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
                                 />
 
                                 {errors.montant_ht && (
-                                    <p className="text-red-500 text-xs mt-1">
+                                    <p className="text-rose-500 text-xs mt-1">
                                         {errors.montant_ht}
                                     </p>
                                 )}
@@ -601,15 +606,16 @@ export default function Attribution({
                         {/* =================================================
                             GARANTIE
                         ================================================== */}
-                        {bon_commande.garanti && (
+                        {estGaranti && (
 
-                            <div className="border border-orange-200 bg-orange-50 rounded-lg p-4">
+                            <div className="border border-gold-200 bg-gold-50 rounded-lg p-4">
 
-                                <p className="font-medium text-orange-800 mb-3">
+                                <p className="flex items-center gap-2 font-medium text-gold-800 mb-3">
+                                    <ShieldAlert size={17} />
                                     Ce bon de commande est garanti.
                                 </p>
 
-                                <label className="block text-sm font-medium mb-1">
+                                <label className="block text-sm font-medium mb-1 text-gray-700">
                                     Justificatif de caution *
                                 </label>
 
@@ -622,7 +628,7 @@ export default function Attribution({
                                             e.target.files[0]
                                         )
                                     }
-                                    className="w-full border rounded-lg px-3 py-2 bg-white"
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-sm"
                                 />
 
                                 <p className="text-xs text-gray-500 mt-1">
@@ -630,7 +636,7 @@ export default function Attribution({
                                 </p>
 
                                 {errors.justificatif_caution && (
-                                    <p className="text-red-500 text-xs mt-1">
+                                    <p className="text-rose-500 text-xs mt-1">
                                         {errors.justificatif_caution}
                                     </p>
                                 )}
@@ -645,28 +651,29 @@ export default function Attribution({
                         ================================================== */}
                         <div className="flex gap-3 pt-3">
 
-                            <button
+                            <Button
                                 type="submit"
+                                variant="primary"
                                 disabled={processing}
-                                className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
                             >
                                 {processing
                                     ? 'Attribution...'
-                                    : 'Confirmer l’attribution'}
-                            </button>
+                                    : "Confirmer l'attribution"}
+                            </Button>
 
-                            <Link
+                            <Button
+                                as={Link}
                                 href={route('bons-commande.index')}
-                                className="bg-gray-200 px-5 py-2 rounded-lg"
+                                variant="secondary"
                             >
                                 Annuler
-                            </Link>
+                            </Button>
 
                         </div>
 
                     </form>
 
-                </div>
+                </Card>
 
             </div>
 

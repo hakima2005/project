@@ -7,6 +7,7 @@ use App\Models\BonCommande;
 use App\Models\Fournisseur;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
 class DevisETLService
@@ -28,7 +29,7 @@ class DevisETLService
     {
         /*
          * =====================================================
-         * 1. STOCKAGE
+         * 1. STOCKAGE DU DOCUMENT
          * =====================================================
          */
 
@@ -43,31 +44,27 @@ class DevisETLService
          * =====================================================
          */
 
-        $fullPath =
-            Storage::disk('public')->path($path);
+        $fullPath = Storage::disk('public')->path($path);
 
-        $text =
-            $this->extractText($fullPath);
+        $text = $this->extractText($fullPath);
 
         if (trim($text) === '') {
-
             throw new RuntimeException(
-                'Impossible d’extraire le texte du document.'
+                'Impossible d’extraire le texte du document PDF.'
             );
         }
 
         /*
          * =====================================================
-         * 3. PARSING
+         * 3. PARSING DU DOCUMENT
          * =====================================================
          */
 
-        $data =
-            $this->parseDocument($text);
+        $data = $this->parseDocument($text);
 
         /*
          * =====================================================
-         * 4. VALIDATION MINIMALE
+         * 4. VALIDATION DES INFORMATIONS
          * =====================================================
          */
 
@@ -85,10 +82,10 @@ class DevisETLService
         foreach ($required as $field) {
 
             if (
-                !isset($data[$field]) ||
+                !array_key_exists($field, $data) ||
+                $data[$field] === null ||
                 $data[$field] === ''
             ) {
-
                 throw new RuntimeException(
                     "Information introuvable dans le document : {$field}"
                 );
@@ -97,7 +94,7 @@ class DevisETLService
 
         /*
          * =====================================================
-         * 5. RECHERCHE DU BC
+         * 5. RECHERCHE DU BON DE COMMANDE
          * =====================================================
          */
 
@@ -118,66 +115,115 @@ class DevisETLService
          * =====================================================
          * 6. RECHERCHE DU FOURNISSEUR
          * =====================================================
+         *
+         * ORDRE DE PRIORITÉ :
+         *
+         * 1. ICE
+         * 2. IF
+         * 3. Raison sociale
+         * 4. Création uniquement si aucun fournisseur
+         *    correspondant n'existe.
          */
 
-        /*
-         * Recherche d'abord par raison sociale.
-         */
-        $fournisseur = Fournisseur::where(
-            'raison_sociale',
-            $data['raison_sociale']
-        )->first();
+        $fournisseur = null;
 
         /*
-         * Recherche par IF + raison sociale.
+         * -----------------------------------------------------
+         * 6.1 Recherche par ICE
+         * -----------------------------------------------------
          */
+
+        if (!empty($data['ICE'])) {
+
+            $fournisseur = Fournisseur::where(
+                'ICE',
+                $data['ICE']
+            )->first();
+        }
+
+        /*
+         * -----------------------------------------------------
+         * 6.2 Recherche par identifiant fiscal
+         * -----------------------------------------------------
+         */
+
         if (
             !$fournisseur &&
             !empty($data['identifiant_fiscal'])
         ) {
 
-            $fournisseur =
-                Fournisseur::where(
-                    'identifiant_fiscal',
-                    $data['identifiant_fiscal']
-                )
-                ->where(
-                    'raison_sociale',
-                    $data['raison_sociale']
-                )
-                ->first();
+            $fournisseur = Fournisseur::where(
+                'identifiant_fiscal',
+                $data['identifiant_fiscal']
+            )->first();
         }
 
         /*
-         * Recherche par ICE + raison sociale.
-         */
-        if (
-            !$fournisseur &&
-            !empty($data['ICE'])
-        ) {
-
-            $fournisseur =
-                Fournisseur::where(
-                    'ICE',
-                    $data['ICE']
-                )
-                ->where(
-                    'raison_sociale',
-                    $data['raison_sociale']
-                )
-                ->first();
-        }
-
-        /*
-         * =====================================================
-         * CREATION AUTOMATIQUE DU FOURNISSEUR
-         * =====================================================
+         * -----------------------------------------------------
+         * 6.3 Recherche par raison sociale
+         * -----------------------------------------------------
          */
 
         if (!$fournisseur) {
 
-            $fournisseur =
-                Fournisseur::create([
+            $fournisseur = Fournisseur::where(
+                'raison_sociale',
+                $data['raison_sociale']
+            )->first();
+        }
+
+        /*
+         * =====================================================
+         * 7. CREATION DU FOURNISSEUR
+         * =====================================================
+         *
+         * Avant la création, on refait les vérifications
+         * ICE / IF afin d'éviter une violation de contrainte
+         * UNIQUE dans PostgreSQL.
+         */
+
+        if (!$fournisseur) {
+
+            /*
+             * Si l'ICE existe déjà, on récupère directement
+             * le fournisseur correspondant.
+             */
+            if (!empty($data['ICE'])) {
+
+                $fournisseur = Fournisseur::where(
+                    'ICE',
+                    $data['ICE']
+                )->first();
+            }
+
+            /*
+             * Si l'IF existe déjà, on récupère directement
+             * le fournisseur correspondant.
+             */
+            if (
+                !$fournisseur &&
+                !empty($data['identifiant_fiscal'])
+            ) {
+
+                $fournisseur = Fournisseur::where(
+                    'identifiant_fiscal',
+                    $data['identifiant_fiscal']
+                )->first();
+            }
+        }
+
+        /*
+         * -----------------------------------------------------
+         * Si toujours aucun fournisseur :
+         * création.
+         * -----------------------------------------------------
+         */
+
+        if (!$fournisseur) {
+
+            try {
+
+                $fournisseur = Fournisseur::create([
 
                     'raison_sociale' =>
                         $data['raison_sociale'],
@@ -195,15 +241,38 @@ class DevisETLService
                         $data['email'] ?? null,
 
                 ]);
+
+            } catch (\Illuminate\Database\QueryException $e) {
+
+                /*
+                 * Cas de sécurité :
+                 * si un fournisseur avec le même ICE a été
+                 * trouvé au moment exact de l'insertion,
+                 * on essaie de le récupérer.
+                 */
+
+                if (!empty($data['ICE'])) {
+
+                    $fournisseur = Fournisseur::where(
+                        'ICE',
+                        $data['ICE']
+                    )->first();
+                }
+
+                if (!$fournisseur) {
+
+                    throw new RuntimeException(
+                        'Impossible de créer le fournisseur : '
+                        . $e->getMessage()
+                    );
+                }
+            }
         }
 
         /*
          * =====================================================
-         * 7. VERIFICATION DES DOUBLONS
+         * 8. VERIFICATION DES DOUBLONS DE DEVIS
          * =====================================================
-         *
-         * Un même fournisseur ne peut pas avoir deux devis
-         * avec la même référence.
          */
 
         $devisExistant = Devis::where(
@@ -229,7 +298,7 @@ class DevisETLService
 
         /*
          * =====================================================
-         * 8. CREATION DU DEVIS
+         * 9. CREATION DU DEVIS
          * =====================================================
          */
 
@@ -287,8 +356,7 @@ class DevisETLService
             . escapeshellarg($filePath)
             . ' -';
 
-        $output =
-            shell_exec($command);
+        $output = shell_exec($command);
 
         return $output ?? '';
     }
@@ -339,11 +407,10 @@ class DevisETLService
             )
         ) {
 
-            $date =
-                \DateTime::createFromFormat(
-                    'd/m/Y',
-                    $matches[1]
-                );
+            $date = \DateTime::createFromFormat(
+                'd/m/Y',
+                $matches[1]
+            );
 
             if ($date) {
 
@@ -567,22 +634,58 @@ class DevisETLService
         string $amount
     ): float {
 
-        $amount =
-            trim($amount);
+        $amount = trim($amount);
 
-        $amount =
-            str_replace(
-                ' ',
+        /*
+         * Suppression des espaces.
+         */
+        $amount = str_replace(
+            ' ',
+            '',
+            $amount
+        );
+
+        /*
+         * Gestion des formats :
+         *
+         * 1234,50
+         * 1234.50
+         * 1 234,50
+         */
+
+        if (
+            str_contains($amount, ',') &&
+            str_contains($amount, '.')
+        ) {
+
+            /*
+             * Exemple :
+             * 1.234,50
+             *
+             * Le point est séparateur de milliers
+             * et la virgule est le séparateur décimal.
+             */
+
+            $amount = str_replace(
+                '.',
                 '',
                 $amount
             );
 
-        $amount =
-            str_replace(
+            $amount = str_replace(
                 ',',
                 '.',
                 $amount
             );
+
+        } else {
+
+            $amount = str_replace(
+                ',',
+                '.',
+                $amount
+            );
+        }
 
         return (float) $amount;
     }

@@ -1,5 +1,9 @@
 import AppLayout from '@/Layouts/AppLayout';
+import Card from '@/Components/ui/Card';
+import Button from '@/Components/ui/Button';
+import Badge from '@/Components/ui/Badge';
 import { Link, router } from '@inertiajs/react';
+import { Upload, Plus, Pencil, CheckCircle2, Trash2 } from 'lucide-react';
 
 
 export default function DevisIndex({
@@ -49,39 +53,30 @@ export default function DevisIndex({
 
         <AppLayout title="Devis">
 
-            <div className="bg-white rounded-xl shadow p-6">
-
-                {/* =====================================================
-                    HEADER
-                ====================================================== */}
-
-                <div className="flex items-center justify-between mb-6">
-
-                    <h3 className="text-md font-semibold text-gray-700">
-                        Liste des devis
-                    </h3>
-
-
+            <Card
+                title="Liste des devis"
+                actions={
                     <div className="flex gap-3">
 
-                        <Link
+                        <Button
+                            as={Link}
                             href={route('devis.import')}
-                            className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700"
+                            variant="secondary"
                         >
-                            + Importer un document
-                        </Link>
+                            <Upload size={16} /> Importer un document
+                        </Button>
 
-                        <Link
+                        <Button
+                            as={Link}
                             href={route('devis.create')}
-                            className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700"
+                            variant="primary"
                         >
-                            + Nouveau devis
-                        </Link>
+                            <Plus size={16} /> Nouveau devis
+                        </Button>
 
                     </div>
-
-                </div>
-
+                }
+            >
 
                 {/* =====================================================
                     TABLE
@@ -93,9 +88,9 @@ export default function DevisIndex({
 
                         <thead>
 
-                            <tr className="bg-gray-50 text-gray-600">
+                            <tr className="bg-cream-100 text-gray-600">
 
-                                <th className="text-left p-3">
+                                <th className="text-left p-3 rounded-l-lg">
                                     Référence
                                 </th>
 
@@ -131,7 +126,7 @@ export default function DevisIndex({
                                     Statut
                                 </th>
 
-                                <th className="text-left p-3">
+                                <th className="text-left p-3 rounded-r-lg">
                                     Actions
                                 </th>
 
@@ -148,19 +143,19 @@ export default function DevisIndex({
 
                                     <tr
                                         key={d.id_devis}
-                                        className="border-t hover:bg-gray-50"
+                                        className="border-t border-cream-200 hover:bg-cream-50"
                                     >
 
                                         {/* Référence */}
 
-                                        <td className="p-3 font-mono">
+                                        <td className="p-3 font-mono text-navy-700">
                                             {d.reference_devis}
                                         </td>
 
 
                                         {/* BC */}
 
-                                        <td className="p-3 text-blue-600">
+                                        <td className="p-3 text-navy-600">
                                             {d.reference_bc}
                                         </td>
 
@@ -185,7 +180,7 @@ export default function DevisIndex({
 
                                         {/* TVA */}
 
-                                        <td className="p-3 text-blue-600">
+                                        <td className="p-3 text-navy-600">
                                             {formatMontant(
                                                 d.montant_tva
                                             )}{' '}
@@ -195,7 +190,7 @@ export default function DevisIndex({
 
                                         {/* RAS */}
 
-                                        <td className="p-3 text-orange-600">
+                                        <td className="p-3 text-gold-700">
                                             {formatMontant(
                                                 d.montant_retenue
                                             )}{' '}
@@ -205,7 +200,7 @@ export default function DevisIndex({
 
                                         {/* TTC */}
 
-                                        <td className="p-3 font-semibold">
+                                        <td className="p-3 font-semibold text-navy-900">
                                             {formatMontant(
                                                 d.montant_ttc
                                             )}{' '}
@@ -224,25 +219,18 @@ export default function DevisIndex({
 
                                         <td className="p-3">
 
-                                            <span
-                                                className={`
-                                                    px-2
-                                                    py-1
-                                                    rounded
-                                                    text-xs
-                                                    ${d.statut?.nom_fr ===
-                                                        'retenu'
-                                                        ? 'bg-green-100 text-green-700'
-                                                        : d.statut?.nom_fr ===
-                                                            'rejeté'
-                                                            ? 'bg-red-100 text-red-700'
-                                                            : 'bg-gray-100 text-gray-700'
-                                                    }
-                                                `}
+                                            <Badge
+                                                tone={
+                                                    d.statut?.nom_fr === 'retenu'
+                                                        ? 'success'
+                                                        : d.statut?.nom_fr === 'rejeté'
+                                                        ? 'danger'
+                                                        : 'neutral'
+                                                }
                                             >
                                                 {d.statut?.nom_fr ||
                                                     'reçu'}
-                                            </span>
+                                            </Badge>
 
                                         </td>
 
@@ -251,7 +239,7 @@ export default function DevisIndex({
 
                                         <td className="p-3">
 
-                                            <div className="flex gap-3 whitespace-nowrap">
+                                            <div className="flex items-center gap-3 whitespace-nowrap">
 
                                                 {/* Modifier */}
 
@@ -260,9 +248,10 @@ export default function DevisIndex({
                                                         'devis.edit',
                                                         d.id_devis
                                                     )}
-                                                    className="text-orange-600 hover:underline"
+                                                    className="text-gold-600 hover:text-gold-700"
+                                                    title="Modifier"
                                                 >
-                                                    Modifier
+                                                    <Pencil size={16} />
                                                 </Link>
 
 
@@ -278,9 +267,10 @@ export default function DevisIndex({
                                                                     d.id_devis
                                                                 )
                                                             }
-                                                            className="text-green-600 hover:underline"
+                                                            className="text-emerald-600 hover:text-emerald-700"
+                                                            title="Retenir"
                                                         >
-                                                            Retenir
+                                                            <CheckCircle2 size={16} />
                                                         </button>
 
                                                     )}
@@ -295,7 +285,8 @@ export default function DevisIndex({
                                                     )}
                                                     method="delete"
                                                     as="button"
-                                                    className="text-red-600 hover:underline"
+                                                    className="text-rose-600 hover:text-rose-700"
+                                                    title="Supprimer"
                                                     onClick={(e) => {
 
                                                         if (
@@ -308,7 +299,7 @@ export default function DevisIndex({
 
                                                     }}
                                                 >
-                                                    Supprimer
+                                                    <Trash2 size={16} />
                                                 </Link>
 
                                             </div>
@@ -340,7 +331,7 @@ export default function DevisIndex({
 
                 </div>
 
-            </div>
+            </Card>
 
         </AppLayout>
     );
