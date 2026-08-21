@@ -1,13 +1,16 @@
 import AppLayout from '@/Layouts/AppLayout';
+import Card from '@/Components/ui/Card';
+import Button from '@/Components/ui/Button';
 import { useForm, Link } from '@inertiajs/react';
+import { Coins } from 'lucide-react';
 
 export default function Edit({ exercice, typesMt, montants }) {
 
     const montantsInitiaux = {};
 
-montants.forEach((item) => {
-    montantsInitiaux[item.id_type_mt] = item.montant;
-});
+    montants.forEach((item) => {
+        montantsInitiaux[item.id_type_mt] = item.montant;
+    });
 
     const { data, setData, put, processing, errors } = useForm({
         annee: exercice.annee,
@@ -31,146 +34,159 @@ montants.forEach((item) => {
     return (
         <AppLayout title={`Modifier l'exercice ${exercice.annee}`}>
 
-            <div className="max-w-2xl bg-white rounded-xl shadow p-6">
+            <div className="max-w-2xl">
 
-                <form onSubmit={submit} className="space-y-4">
+                <Card title={`Modifier l'exercice ${exercice.annee}`}>
 
-                    <div className="flex items-center gap-4">
-    <label className="w-48 font-medium">
-        Année :
-    </label>
+                    <form onSubmit={submit} className="space-y-5">
 
-    <input
-        type="number"
-        value={data.annee}
-        onChange={(e) => setData('annee', e.target.value)}
-        className="flex-1 border rounded-lg px-3 py-2"
-    />
-</div>
-                    <div className="grid grid-cols-2 gap-4 mt-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Date début
+                        <div className="flex items-center gap-4">
+                            <label className="w-48 font-medium text-gray-700">
+                                Année :
                             </label>
+
                             <input
-                                type="date"
-                                value={data.date_debut}
-                                onChange={(e) => setData('date_debut', e.target.value)}
-                                className="w-full border rounded-lg px-3 py-2"
+                                type="number"
+                                value={data.annee}
+                                onChange={(e) => setData('annee', e.target.value)}
+                                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
                             />
-                            {errors.date_debut && (
-                                <p className="text-red-500 text-xs mt-1">
-                                    {errors.date_debut}
-                                </p>
-                            )}
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Date fin
-                            </label>
-                            <input
-                                type="date"
-                                value={data.date_fin}
-                                onChange={(e) => setData('date_fin', e.target.value)}
-                                className="w-full border rounded-lg px-3 py-2"
-                            />
-                            {errors.date_fin && (
-                                <p className="text-red-500 text-xs mt-1">
-                                    {errors.date_fin}
-                                </p>
-                            )}
-                        </div>
-                    </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Date début
+                                </label>
+                                <input
+                                    type="date"
+                                    value={data.date_debut}
+                                    onChange={(e) => setData('date_debut', e.target.value)}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                                />
+                                {errors.date_debut && (
+                                    <p className="text-rose-500 text-xs mt-1">
+                                        {errors.date_debut}
+                                    </p>
+                                )}
+                            </div>
 
-                    <div className="space-y-4">
-                        <h3 className="font-semibold text-gray-700">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Date fin
+                                </label>
+                                <input
+                                    type="date"
+                                    value={data.date_fin}
+                                    onChange={(e) => setData('date_fin', e.target.value)}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                                />
+                                {errors.date_fin && (
+                                    <p className="text-rose-500 text-xs mt-1">
+                                        {errors.date_fin}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+
+                        <h3 className="font-display font-semibold text-navy-900 pt-2 border-t border-cream-200">
                             Types de montant
                         </h3>
 
-                        {typesMt.map((type) => (
-    <div
-        key={type.id_type_mt}
-        className="flex items-center gap-4"
-    >
-        <label className="w-48 font-medium">
-            {type.libelle} :
-        </label>
+                        <div className="space-y-3">
+                            {typesMt.map((type) => (
+                                <div
+                                    key={type.id_type_mt}
+                                    className="flex items-center gap-4"
+                                >
+                                    <label className="w-48 text-sm font-medium text-gray-700">
+                                        {type.libelle} :
+                                    </label>
 
-        <input
-            type="number"
-            min="0"
-            value={data.montants[type.id_type_mt] || ''}
-            onChange={(e) =>
-                setData('montants', {
-                    ...data.montants,
-                    [type.id_type_mt]: e.target.value,
-                })
-            }
-            className="flex-1 border rounded-lg px-3 py-2"
-        />
-    </div>
-))}
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        value={data.montants[type.id_type_mt] || ''}
+                                        onChange={(e) =>
+                                            setData('montants', {
+                                                ...data.montants,
+                                                [type.id_type_mt]: e.target.value,
+                                            })
+                                        }
+                                        className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                                    />
+                                </div>
+                            ))}
+                        </div>
 
-                        <div className="bg-blue-50 border rounded-lg p-3 flex justify-between">
-                            <span className="font-semibold">
+                        {/* Montant Global */}
+
+                        <div className="bg-navy-800 rounded-xl p-5 flex items-center justify-between">
+
+                            <span className="flex items-center gap-2 font-display font-semibold text-white">
+                                <Coins size={18} className="text-gold-400" />
                                 Montant Global
                             </span>
 
-                            <span className="font-bold text-blue-700">
+                            <span className="font-bold text-xl text-gold-300">
                                 {total.toLocaleString()} DH
                             </span>
+
                         </div>
-                    </div>
 
-                    <div>
-                        <label className="block text-sm font-medium mb-1">
-                            Date de visée
-                        </label>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Date de visée
+                            </label>
 
-                        <input
-                            type="date"
-                            value={data.date_visee}
-                            onChange={(e) =>
-                                setData('date_visee', e.target.value)
-                            }
-                            className="w-full border rounded-lg px-3 py-2"
-                        />
-                    </div>
+                            <input
+                                type="date"
+                                value={data.date_visee}
+                                onChange={(e) =>
+                                    setData('date_visee', e.target.value)
+                                }
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                            />
+                        </div>
 
-                    <div>
-                        <label className="block text-sm font-medium mb-1">
-                            Observations
-                        </label>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Observations
+                            </label>
 
-                        <textarea
-                            rows={3}
-                            value={data.observations}
-                            onChange={(e) =>
-                                setData('observations', e.target.value)
-                            }
-                            className="w-full border rounded-lg px-3 py-2"
-                        />
-                    </div>
+                            <textarea
+                                rows={3}
+                                value={data.observations}
+                                onChange={(e) =>
+                                    setData('observations', e.target.value)
+                                }
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                            />
+                        </div>
 
-                    <div className="flex gap-3">
-                        <button
-                            type="submit"
-                            disabled={processing}
-                            className="bg-blue-600 text-white px-6 py-2 rounded-lg"
-                        >
-                            Mettre à jour
-                        </button>
+                        <div className="flex gap-3 pt-2">
+                            <Button
+                                type="submit"
+                                variant="primary"
+                                disabled={processing}
+                            >
+                                {processing
+                                    ? 'Enregistrement...'
+                                    : 'Mettre à jour'}
+                            </Button>
 
-                        <Link
-                            href="/exercices"
-                            className="bg-gray-300 px-6 py-2 rounded-lg"
-                        >
-                            Annuler
-                        </Link>
-                    </div>
+                            <Button
+                                as={Link}
+                                href="/exercices"
+                                variant="secondary"
+                            >
+                                Annuler
+                            </Button>
+                        </div>
 
-                </form>
+                    </form>
+
+                </Card>
 
             </div>
 

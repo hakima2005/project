@@ -1,76 +1,57 @@
 import AppLayout from '@/Layouts/AppLayout';
+import Card from '@/Components/ui/Card';
+import Button from '@/Components/ui/Button';
+import Badge from '@/Components/ui/Badge';
 import { Link } from '@inertiajs/react';
+import { Plus, Pencil } from 'lucide-react';
 
 export default function Index({ typesCategories }) {
     return (
         <AppLayout title="Types de catégorie">
-
-            <div className="bg-white rounded-xl shadow p-6">
-
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-semibold">
-                        Liste des types de catégorie
-                    </h2>
-
-                    <Link
-                        href="/type-categories/create"
-                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-                    >
-                        + Ajouter un type
-                    </Link>
-                </div>
-
-                <table className="w-full border">
-                    <thead className="bg-gray-100">
-                        <tr>
-                            <th className="p-3 text-left">ID</th>
-                            <th className="p-3 text-left">Libellé</th>
-                            <th className="p-3 text-center">Statut</th>
-                            <th className="p-3 text-center">Actions</th>
+            <Card
+                title="Liste des types de catégorie"
+                actions={
+                    <Button as={Link} href="/type-categories/create" variant="primary">
+                        <Plus size={16} /> Ajouter un type
+                    </Button>
+                }
+            >
+                <table className="w-full text-sm">
+                    <thead>
+                        <tr className="bg-cream-100 text-gray-600">
+                            <th className="text-left p-3 rounded-l-lg">ID</th>
+                            <th className="text-left p-3">Libellé</th>
+                            <th className="text-center p-3">Statut</th>
+                            <th className="text-center p-3 rounded-r-lg">Actions</th>
                         </tr>
                     </thead>
-
                     <tbody>
                         {typesCategories.map(type => (
-                            <tr key={type.id_type_categorie} className="border-t">
-
-                                <td className="p-3">
+                            <tr key={type.id_type_categorie} className="border-t border-cream-200 hover:bg-cream-50">
+                                <td className="p-3 text-gray-500">
                                     {type.id_type_categorie}
                                 </td>
-
-                                <td className="p-3">
+                                <td className="p-3 font-medium text-navy-900">
                                     {type.libelle}
                                 </td>
-
                                 <td className="p-3 text-center">
-                                    {type.id_statut === 1 ? (
-                                        <span className="text-green-600 font-semibold">
-                                            Actif
-                                        </span>
-                                    ) : (
-                                        <span className="text-red-600 font-semibold">
-                                            Inactif
-                                        </span>
-                                    )}
+                                    <Badge tone={type.id_statut === 1 ? 'success' : 'danger'}>
+                                        {type.id_statut === 1 ? 'Actif' : 'Inactif'}
+                                    </Badge>
                                 </td>
-
                                 <td className="p-3 text-center">
                                     <Link
                                         href={`/type-categories/${type.id_type_categorie}/edit`}
-                                        className="bg-yellow-500 text-white px-3 py-1 rounded"
+                                        className="inline-flex items-center gap-1 text-gold-600 hover:text-gold-700 text-xs font-medium"
                                     >
-                                        Modifier
+                                        <Pencil size={14} /> Modifier
                                     </Link>
                                 </td>
-
                             </tr>
                         ))}
                     </tbody>
-
                 </table>
-
-            </div>
-
+            </Card>
         </AppLayout>
     );
 }

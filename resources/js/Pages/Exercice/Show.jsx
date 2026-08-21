@@ -1,5 +1,9 @@
 import AppLayout from '@/Layouts/AppLayout';
+import Card from '@/Components/ui/Card';
+import Button from '@/Components/ui/Button';
+import Badge from '@/Components/ui/Badge';
 import { Link } from '@inertiajs/react';
+import { ArrowLeft, Coins } from 'lucide-react';
 
 export default function Show({ exercice }) {
 
@@ -11,109 +15,100 @@ export default function Show({ exercice }) {
     return (
         <AppLayout title={`Exercice ${exercice.annee}`}>
 
-            <div className="bg-white rounded-xl shadow p-6 max-w-3xl">
+            <div className="max-w-3xl space-y-6">
 
-                <h2 className="text-2xl font-bold mb-6">
-                    Exercice {exercice.annee}
-                </h2>
-
-                <div className="space-y-3 mb-8">
-
-                    <div>
-                        <span className="font-semibold">
-                            Année :
-                        </span>{' '}
-                        {exercice.annee}
-                    </div>
-
-                    <div>
-                        <span className="font-semibold">
-                            Date de visée :
-                        </span>{' '}
-                        {exercice.date_visee || '-'}
-                    </div>
-
-                    <div>
-                        <span className="font-semibold">
-                            Statut :
-                        </span>{' '}
-                        {exercice.statut?.nom_fr}
-                    </div>
-
-                    <div>
-                        <span className="font-semibold">
-                            Observations :
-                        </span>{' '}
-                        {exercice.observations || '-'}
-                    </div>
-
-                </div>
-
-                <h3 className="text-lg font-semibold mb-4">
-                    Types de montant
-                </h3>
-
-                <table className="w-full border mb-6">
-
-                    <thead className="bg-gray-100">
-
-                        <tr>
-
-                            <th className="text-left p-3">
-                                Type
-                            </th>
-
-                            <th className="text-right p-3">
-                                Montant
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody>
-
-                        {exercice.types_montant.map((item) => (
-
-                            <tr
-                                key={item.id}
-                                className="border-t"
-                            >
-
-                                <td className="p-3">
-                                    {item.type_mt.libelle}
-                                </td>
-
-                                <td className="p-3 text-right">
-                                    {Number(item.montant).toLocaleString()} DH
-                                </td>
-
-                            </tr>
-
-                        ))}
-
-                        <tr className="border-t bg-gray-50 font-bold">
-
-                            <td className="p-3">
-                                Montant Global
-                            </td>
-
-                            <td className="p-3 text-right">
-                                {Number(total).toLocaleString()} DH
-                            </td>
-
-                        </tr>
-
-                    </tbody>
-
-                </table>
-
-                <Link
-                    href="/exercices"
-                    className="bg-blue-600 text-white px-5 py-2 rounded-lg"
+                <Card
+                    title={`Exercice ${exercice.annee}`}
+                    actions={
+                        <Badge tone="success">
+                            {exercice.statut?.nom_fr}
+                        </Badge>
+                    }
                 >
-                    Retour
-                </Link>
+
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+
+                        <div>
+                            <span className="text-gray-500">
+                                Année
+                            </span>
+                            <p className="font-semibold text-navy-900">
+                                {exercice.annee}
+                            </p>
+                        </div>
+
+                        <div>
+                            <span className="text-gray-500">
+                                Date de visée
+                            </span>
+                            <p className="font-semibold">
+                                {exercice.date_visee || '—'}
+                            </p>
+                        </div>
+
+                        <div className="col-span-2">
+                            <span className="text-gray-500">
+                                Observations
+                            </span>
+                            <p className="font-semibold">
+                                {exercice.observations || '—'}
+                            </p>
+                        </div>
+
+                    </div>
+
+                </Card>
+
+                <Card title="Types de montant">
+
+                    <table className="w-full text-sm">
+                        <thead>
+                            <tr className="bg-cream-100 text-gray-600">
+                                <th className="text-left p-3 rounded-l-lg">
+                                    Type
+                                </th>
+                                <th className="text-right p-3 rounded-r-lg">
+                                    Montant
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {exercice.types_montant.map((item) => (
+                                <tr
+                                    key={item.id}
+                                    className="border-t border-cream-200"
+                                >
+                                    <td className="p-3">
+                                        {item.type_mt.libelle}
+                                    </td>
+                                    <td className="p-3 text-right font-medium">
+                                        {Number(item.montant).toLocaleString()} DH
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+
+                    {/* Montant Global */}
+
+                    <div className="mt-4 bg-navy-800 rounded-xl p-5 flex items-center justify-between">
+
+                        <span className="flex items-center gap-2 font-display font-semibold text-white">
+                            <Coins size={18} className="text-gold-400" />
+                            Montant Global
+                        </span>
+
+                        <span className="font-bold text-xl text-gold-300">
+                            {Number(total).toLocaleString()} DH
+                        </span>
+
+                    </div>
+
+                </Card>
+
+                <Button as={Link} href="/exercices" variant="secondary">
+                    <ArrowLeft size={16} /> Retour
+                </Button>
 
             </div>
 

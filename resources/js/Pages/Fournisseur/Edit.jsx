@@ -1,4 +1,6 @@
 import AppLayout from '@/Layouts/AppLayout';
+import Card from '@/Components/ui/Card';
+import Button from '@/Components/ui/Button';
 import { useForm, Link } from '@inertiajs/react';
 
 export default function Edit({ fournisseur }) {
@@ -18,125 +20,116 @@ export default function Edit({ fournisseur }) {
 
     return (
         <AppLayout title="Modifier fournisseur">
-            <div className="max-w-3xl bg-white rounded-xl shadow p-6">
+            <div className="max-w-3xl">
+                <Card title="Modifier le fournisseur">
 
-                <h2 className="text-xl font-semibold mb-6">
-                    Modifier le fournisseur
-                </h2>
-
-                <form onSubmit={submit} className="space-y-5">
-
-                    <div>
-                        <label className="block mb-1 font-medium">
-                            Raison sociale
-                        </label>
-                        <input
-                            type="text"
-                            value={data.raison_sociale}
-                            onChange={(e) => setData('raison_sociale', e.target.value)}
-                            className="w-full border rounded-lg p-2"
-                        />
-                        {errors.raison_sociale &&
-                            <div className="text-red-500 text-sm">
-                                {errors.raison_sociale}
-                            </div>
-                        }
-                    </div>
-
-                    <div>
-                        <label className="block mb-1 font-medium">
-                            Adresse
-                        </label>
-                        <input
-                            type="text"
-                            value={data.adresse}
-                            onChange={(e) => setData('adresse', e.target.value)}
-                            className="w-full border rounded-lg p-2"
-                        />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
+                    <form onSubmit={submit} className="space-y-5">
 
                         <div>
-                            <label className="block mb-1 font-medium">
-                                Téléphone
+                            <label className="block mb-1 text-sm font-medium text-gray-700">
+                                Raison sociale
                             </label>
                             <input
                                 type="text"
-                                value={data.telephone}
-                                onChange={(e) => setData('telephone', e.target.value)}
-                                className="w-full border rounded-lg p-2"
+                                value={data.raison_sociale}
+                                onChange={(e) => setData('raison_sociale', e.target.value)}
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
                             />
-                        </div>
-
-                        <div>
-                            <label className="block mb-1 font-medium">
-                                Email
-                            </label>
-                            <input
-                                type="email"
-                                value={data.email}
-                                onChange={(e) => setData('email', e.target.value)}
-                                className="w-full border rounded-lg p-2"
-                            />
-                            {errors.email &&
-                                <div className="text-red-500 text-sm">
-                                    {errors.email}
+                            {errors.raison_sociale &&
+                                <div className="text-rose-500 text-xs mt-1">
+                                    {errors.raison_sociale}
                                 </div>
                             }
                         </div>
 
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-
                         <div>
-                            <label className="block mb-1 font-medium">
-                                IF
+                            <label className="block mb-1 text-sm font-medium text-gray-700">
+                                Adresse
                             </label>
                             <input
                                 type="text"
-                                value={data.if}
-                                onChange={(e) => setData('if', e.target.value)}
-                                className="w-full border rounded-lg p-2"
+                                value={data.adresse}
+                                onChange={(e) => setData('adresse', e.target.value)}
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
                             />
                         </div>
 
-                        <div>
-                            <label className="block mb-1 font-medium">
-                                ICE
-                            </label>
-                            <input
-                                type="text"
-                                value={data.ice}
-                                onChange={(e) => setData('ice', e.target.value)}
-                                className="w-full border rounded-lg p-2"
-                            />
+                        <div className="grid grid-cols-2 gap-4">
+
+                            <div>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">
+                                    Téléphone
+                                </label>
+                                <input
+                                    type="text"
+                                    value={data.telephone}
+                                    onChange={(e) => setData('telephone', e.target.value)}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">
+                                    Email
+                                </label>
+                                <input
+                                    type="email"
+                                    value={data.email}
+                                    onChange={(e) => setData('email', e.target.value)}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                                />
+                                {errors.email &&
+                                    <div className="text-rose-500 text-xs mt-1">
+                                        {errors.email}
+                                    </div>
+                                }
+                            </div>
+
                         </div>
 
-                    </div>
+                        <div className="grid grid-cols-2 gap-4">
 
-                    <div className="flex gap-3 pt-4">
+                            <div>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">
+                                    IF
+                                </label>
+                                <input
+                                    type="text"
+                                    value={data.if}
+                                    onChange={(e) => setData('if', e.target.value)}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                                />
+                            </div>
 
-                        <button
-                            type="submit"
-                            disabled={processing}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
-                        >
-                            {processing ? "Enregistrement..." : "Mettre à jour"}
-                        </button>
+                            <div>
+                                <label className="block mb-1 text-sm font-medium text-gray-700">
+                                    ICE
+                                </label>
+                                <input
+                                    type="text"
+                                    value={data.ice}
+                                    onChange={(e) => setData('ice', e.target.value)}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                                />
+                            </div>
 
-                        <Link
-                            href="/fournisseurs"
-                            className="bg-gray-300 px-6 py-2 rounded-lg hover:bg-gray-400"
-                        >
-                            Annuler
-                        </Link>
+                        </div>
 
-                    </div>
+                        <div className="flex gap-3 pt-4">
 
-                </form>
+                            <Button type="submit" variant="primary" disabled={processing}>
+                                {processing ? "Enregistrement..." : "Mettre à jour"}
+                            </Button>
 
+                            <Button as={Link} href="/fournisseurs" variant="secondary">
+                                Annuler
+                            </Button>
+
+                        </div>
+
+                    </form>
+
+                </Card>
             </div>
         </AppLayout>
     );

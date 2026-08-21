@@ -1,4 +1,6 @@
 import AppLayout from '@/Layouts/AppLayout';
+import Card from '@/Components/ui/Card';
+import Button from '@/Components/ui/Button';
 import { useForm, Link } from '@inertiajs/react';
 
 export default function NaturePrestationEdit({ nature, typesCategories }) {
@@ -13,115 +15,112 @@ export default function NaturePrestationEdit({ nature, typesCategories }) {
     return (
         <AppLayout title="Modifier nature de prestation">
 
-            <div className="max-w-2xl bg-white rounded-xl shadow p-6">
+            <div className="max-w-2xl">
 
-                <form
-                    onSubmit={(e) => {
-                        e.preventDefault();
-                        put(`/natures-prestation/${nature.code_nat_prest}`);
-                    }}
-                    className="space-y-4"
-                >
+                <Card title="Modifier la nature de prestation">
 
-                    <div>
-                        <label>Code</label>
+                    <form
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            put(`/natures-prestation/${nature.code_nat_prest}`);
+                        }}
+                        className="space-y-4"
+                    >
 
-                        <input
-                            value={nature.code_nat_prest}
-                            disabled
-                            className="w-full border rounded-lg px-3 py-2 bg-gray-100"
-                        />
-                    </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Code</label>
 
-                    <div>
-                        <label>Type de catégorie *</label>
+                            <input
+                                value={nature.code_nat_prest}
+                                disabled
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-cream-100 text-gray-500"
+                            />
+                        </div>
 
-                        <select
-                            value={data.id_type_categorie}
-                            onChange={(e) =>
-                                setData('id_type_categorie', e.target.value)
-                            }
-                            className="w-full border rounded-lg px-3 py-2"
-                        >
-                            <option value="">
-                                -- Choisir un type de catégorie --
-                            </option>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Type de catégorie *</label>
 
-                            {typesCategories?.map((type) => (
-                                <option
-                                    key={type.id_type_categorie}
-                                    value={type.id_type_categorie}
-                                >
-                                    {type.libelle}
+                            <select
+                                value={data.id_type_categorie}
+                                onChange={(e) =>
+                                    setData('id_type_categorie', e.target.value)
+                                }
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                            >
+                                <option value="">
+                                    -- Choisir un type de catégorie --
                                 </option>
-                            ))}
-                        </select>
 
-                        {errors.id_type_categorie && (
-                            <p className="text-red-500 text-xs">
-                                {errors.id_type_categorie}
-                            </p>
-                        )}
-                    </div>
+                                {typesCategories?.map((type) => (
+                                    <option
+                                        key={type.id_type_categorie}
+                                        value={type.id_type_categorie}
+                                    >
+                                        {type.libelle}
+                                    </option>
+                                ))}
+                            </select>
 
-                    <div>
-                        <label>Intitulé FR</label>
+                            {errors.id_type_categorie && (
+                                <p className="text-rose-500 text-xs mt-1">
+                                    {errors.id_type_categorie}
+                                </p>
+                            )}
+                        </div>
 
-                        <input
-                            value={data.intitule_fr}
-                            onChange={(e) =>
-                                setData('intitule_fr', e.target.value)
-                            }
-                            className="w-full border rounded-lg px-3 py-2"
-                        />
-                    </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Intitulé FR</label>
 
-                    <div>
-                        <label>Intitulé AR</label>
+                            <input
+                                value={data.intitule_fr}
+                                onChange={(e) =>
+                                    setData('intitule_fr', e.target.value)
+                                }
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                            />
+                        </div>
 
-                        <input
-                            dir="rtl"
-                            value={data.intitule_ar}
-                            onChange={(e) =>
-                                setData('intitule_ar', e.target.value)
-                            }
-                            className="w-full border rounded-lg px-3 py-2"
-                        />
-                    </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Intitulé AR</label>
 
-                    <div>
-                        <label>Description</label>
+                            <input
+                                dir="rtl"
+                                value={data.intitule_ar}
+                                onChange={(e) =>
+                                    setData('intitule_ar', e.target.value)
+                                }
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                            />
+                        </div>
 
-                        <textarea
-                            rows={3}
-                            value={data.description}
-                            onChange={(e) =>
-                                setData('description', e.target.value)
-                            }
-                            className="w-full border rounded-lg px-3 py-2"
-                        />
-                    </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
 
-                    <div className="flex gap-3">
+                            <textarea
+                                rows={3}
+                                value={data.description}
+                                onChange={(e) =>
+                                    setData('description', e.target.value)
+                                }
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                            />
+                        </div>
 
-                        <button
-                            type="submit"
-                            disabled={processing}
-                            className="bg-blue-600 text-white px-6 py-2 rounded-lg"
-                        >
-                            Mettre à jour
-                        </button>
+                        <div className="flex gap-3 pt-2">
 
-                        <Link
-                            href="/natures-prestation"
-                            className="bg-gray-200 px-6 py-2 rounded-lg"
-                        >
-                            Annuler
-                        </Link>
+                            <Button type="submit" variant="primary" disabled={processing}>
+                                Mettre à jour
+                            </Button>
 
-                    </div>
+                            <Button as={Link} href="/natures-prestation" variant="secondary">
+                                Annuler
+                            </Button>
 
-                </form>
+                        </div>
+
+                    </form>
+
+                </Card>
 
             </div>
 

@@ -538,6 +538,7 @@ public function importDocument(
 
             'montant_ttc' =>
                 $montantTtc,
+                
 
             'observation' =>
                 $validated['observation'] ?? null,
@@ -554,60 +555,98 @@ public function importDocument(
 
 
     /**
-     * =========================================================
-     * RETENIR UN DEVIS
-     * =========================================================
+ * =========================================================
+ * RETENIR UN DEVIS
+ * =========================================================
+ */
+public function retenir($id)
+{
+    $devis = Devis::findOrFail($id);
+
+
+    /**
+     * =====================================================
+     * Les autres devis du même BC deviennent rejetés
+     * =====================================================
      */
-    public function retenir($id)
-    {
-        $devis = Devis::findOrFail($id);
-
-
-        /**
-         * Tous les autres devis du même BC
-         * deviennent rejetés.
-         */
-        Devis::where(
-            'reference_bc',
-            $devis->reference_bc
+    Devis::where(
+        'reference_bc',
+        $devis->reference_bc
+    )
+        ->where(
+            'id_devis',
+            '!=',
+            $devis->id_devis
         )
-            ->where(
-                'id_devis',
-                '!=',
-                $devis->id_devis
-            )
-            ->update([
-                'id_statut' => 3,
-            ]);
-
-
-        /**
-         * Le devis sélectionné devient retenu.
-         */
-        $devis->update([
-            'id_statut' => 2,
+        ->update([
+            'id_statut' => 3,
         ]);
 
 
-        /**
-         * Le BC passe au statut attribué.
-         */
-        BonCommande::where(
-            'reference_bc',
-            $devis->reference_bc
-        )
-            ->update([
-                'id_statut_bc' => 6,
-            ]);
+
+    /**
+     * =====================================================
+     * Le devis choisi devient retenu
+     * =====================================================
+     */
+    $devis->update([
+        'id_statut' => 2,
+    ]);
 
 
-        return redirect()
-            ->back()
-            ->with(
-                'success',
-                'Devis retenu avec succès.'
-            );
-    }
+
+    /**
+     * =====================================================
+     * Mise à jour du Bon de Commande
+     *
+     * Le BC récupère automatiquement :
+     * - fournisseur retenu
+     * - montant HT
+     * - montant TVA
+     * - montant RAS
+     * - montant TTC
+     * - statut attribué
+     * =====================================================
+     */
+    BonCommande::where(
+        'reference_bc',
+        $devis->reference_bc
+    )
+        ->update([
+
+            'id_statut_bc' => 6,
+
+            'id_fournisseur_attribue' =>
+                $devis->id_fournisseur,
+
+            'montant_ht' =>
+                $devis->montant_ht,
+
+            'montant_tva' =>
+                $devis->montant_tva,
+
+            'montant_retenue' =>
+                $devis->montant_retenue,
+
+            'montant_ttc' =>
+                $devis->montant_ttc,
+
+        ]);
+
+
+
+    /**
+     * =====================================================
+     * Retour
+     * =====================================================
+     */
+    return redirect()
+        ->back()
+        ->with(
+            'success',
+            'Devis retenu avec succès. Le fournisseur, les montants HT, TVA, RAS et TTC du BC ont été mis à jour.'
+        );
+}
 
 
     /**

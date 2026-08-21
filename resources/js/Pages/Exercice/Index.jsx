@@ -1,39 +1,37 @@
 import AppLayout from '@/Layouts/AppLayout';
+import Card from '@/Components/ui/Card';
+import Button from '@/Components/ui/Button';
+import Badge from '@/Components/ui/Badge';
 import { Link } from '@inertiajs/react';
+import { Plus, Eye, Pencil, Trash2 } from 'lucide-react';
 
 export default function ExerciceIndex({ exercices }) {
 
     return (
         <AppLayout title="Exercices budgétaires">
 
-            <div className="bg-white rounded-xl shadow p-6">
-
-                <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-md font-semibold text-gray-700">
-                        Liste des exercices
-                    </h3>
-
-                    <Link
-                        href="/exercices/create"
-                        className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700"
-                    >
-                        + Nouvel exercice
-                    </Link>
-                </div>
+            <Card
+                title="Liste des exercices"
+                actions={
+                    <Button as={Link} href="/exercices/create" variant="primary">
+                        <Plus size={16} /> Nouvel exercice
+                    </Button>
+                }
+            >
 
                 <table className="w-full text-sm">
 
                     <thead>
 
-                        <tr className="bg-gray-50 text-gray-600">
+                        <tr className="bg-cream-100 text-gray-600">
 
-                            <th className="text-left p-3">Année</th>
+                            <th className="text-left p-3 rounded-l-lg">Année</th>
 
                             <th className="text-left p-3">
                                 Statut
                             </th>
 
-                            <th className="text-left p-3">
+                            <th className="text-left p-3 rounded-r-lg">
                                 Actions
                             </th>
 
@@ -51,49 +49,56 @@ export default function ExerciceIndex({ exercices }) {
 
                                     <tr
                                         key={ex.id_exercice}
-                                        className="border-t hover:bg-gray-50"
+                                        className="border-t border-cream-200 hover:bg-cream-50"
                                     >
 
-                                        <td className="p-3 font-bold">
+                                        <td className="p-3 font-bold text-navy-900">
                                             {ex.annee}
                                         </td>
 
                                         <td className="p-3">
 
-                                            <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">
+                                            <Badge tone="success">
                                                 {ex.statut?.nom_fr}
-                                            </span>
+                                            </Badge>
 
                                         </td>
 
-                                        <td className="p-3 flex gap-2">
+                                        <td className="p-3">
 
-                                            <Link
-                                                href={`/exercices/${ex.id_exercice}`}
-                                                className="text-blue-600 hover:underline"
-                                            >
-                                                Voir
-                                            </Link>
+                                            <div className="flex items-center gap-3">
 
-                                            <Link
-                                                href={`/exercices/${ex.id_exercice}/edit`}
-                                                className="text-orange-600 hover:underline"
-                                            >
-                                                Modifier
-                                            </Link>
+                                                <Link
+                                                    href={`/exercices/${ex.id_exercice}`}
+                                                    className="text-navy-600 hover:text-navy-800"
+                                                    title="Voir"
+                                                >
+                                                    <Eye size={16} />
+                                                </Link>
 
-                                            <Link
-                                                href={`/exercices/${ex.id_exercice}`}
-                                                method="delete"
-                                                as="button"
-                                                className="text-red-600 hover:underline"
-                                                onClick={(e) => {
-                                                    if (!confirm('Supprimer cet exercice ?'))
-                                                        e.preventDefault();
-                                                }}
-                                            >
-                                                Supprimer
-                                            </Link>
+                                                <Link
+                                                    href={`/exercices/${ex.id_exercice}/edit`}
+                                                    className="text-gold-600 hover:text-gold-700"
+                                                    title="Modifier"
+                                                >
+                                                    <Pencil size={16} />
+                                                </Link>
+
+                                                <Link
+                                                    href={`/exercices/${ex.id_exercice}`}
+                                                    method="delete"
+                                                    as="button"
+                                                    className="text-rose-600 hover:text-rose-700"
+                                                    title="Supprimer"
+                                                    onClick={(e) => {
+                                                        if (!confirm('Supprimer cet exercice ?'))
+                                                            e.preventDefault();
+                                                    }}
+                                                >
+                                                    <Trash2 size={16} />
+                                                </Link>
+
+                                            </div>
 
                                         </td>
 
@@ -109,7 +114,7 @@ export default function ExerciceIndex({ exercices }) {
 
                                 <td
                                     colSpan="3"
-                                    className="p-6 text-center text-gray-400"
+                                    className="p-8 text-center text-gray-400"
                                 >
                                     Aucun exercice trouvé
                                 </td>
@@ -122,7 +127,7 @@ export default function ExerciceIndex({ exercices }) {
 
                 </table>
 
-            </div>
+            </Card>
 
         </AppLayout>
     );

@@ -1,5 +1,8 @@
 import AppLayout from '@/Layouts/AppLayout';
+import Card from '@/Components/ui/Card';
+import Button from '@/Components/ui/Button';
 import { useForm, Link } from '@inertiajs/react';
+import { Coins } from 'lucide-react';
 
 export default function ExerciceCreate({ typesMt }) {
 
@@ -25,170 +28,176 @@ export default function ExerciceCreate({ typesMt }) {
     return (
         <AppLayout title="Nouvel exercice">
 
-            <div className="max-w-2xl bg-white rounded-xl shadow p-6">
+            <div className="max-w-2xl">
 
-                <form onSubmit={handleSubmit} className="space-y-5">
+                <Card title="Nouvel exercice budgétaire">
 
-                    {/* Année */}
+                    <form onSubmit={handleSubmit} className="space-y-5">
 
-                    <div className="flex items-center gap-4">
-                        <label className="w-48 font-medium">
-                            Année :
-                        </label>
+                        {/* Année */}
 
-                        <input
-                            type="number"
-                            value={data.annee}
-                            onChange={(e) => setData('annee', e.target.value)}
-                            className="flex-1 border rounded-lg px-3 py-2"
-                        />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4 mt-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Date début
-                            </label>
-                            <input
-                                type="date"
-                                value={data.date_debut}
-                                onChange={(e) => setData('date_debut', e.target.value)}
-                                className="w-full border rounded-lg px-3 py-2"
-                            />
-                            {errors.date_debut && (
-                                <p className="text-red-500 text-xs mt-1">
-                                    {errors.date_debut}
-                                </p>
-                            )}
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Date fin
-                            </label>
-                            <input
-                                type="date"
-                                value={data.date_fin}
-                                onChange={(e) => setData('date_fin', e.target.value)}
-                                className="w-full border rounded-lg px-3 py-2"
-                            />
-                            {errors.date_fin && (
-                                <p className="text-red-500 text-xs mt-1">
-                                    {errors.date_fin}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-
-                    <h1 className="text-lg font-bold">Types de montant : </h1>
-
-                    {typesMt.map((type) => (
-                        <div
-                            key={type.id_type_mt}
-                            className="flex items-center gap-4"
-                        >
-                            <label className="w-48 font-medium">
-                                {type.libelle} :
+                        <div className="flex items-center gap-4">
+                            <label className="w-48 font-medium text-gray-700">
+                                Année :
                             </label>
 
                             <input
                                 type="number"
-                                min="0"
-                                value={data.montants[type.id_type_mt] || ''}
-                                onChange={(e) =>
-                                    setData('montants', {
-                                        ...data.montants,
-                                        [type.id_type_mt]: e.target.value,
-                                    })
-                                }
-                                className="flex-1 border rounded-lg px-3 py-2"
+                                value={data.annee}
+                                onChange={(e) => setData('annee', e.target.value)}
+                                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
                             />
                         </div>
-                    ))}
 
-                    {/* Montant Global */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Date début
+                                </label>
+                                <input
+                                    type="date"
+                                    value={data.date_debut}
+                                    onChange={(e) => setData('date_debut', e.target.value)}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                                />
+                                {errors.date_debut && (
+                                    <p className="text-rose-500 text-xs mt-1">
+                                        {errors.date_debut}
+                                    </p>
+                                )}
+                            </div>
 
-                    <div className="bg-gray-100 rounded-lg p-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Date fin
+                                </label>
+                                <input
+                                    type="date"
+                                    value={data.date_fin}
+                                    onChange={(e) => setData('date_fin', e.target.value)}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                                />
+                                {errors.date_fin && (
+                                    <p className="text-rose-500 text-xs mt-1">
+                                        {errors.date_fin}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
 
-                        <div className="flex justify-between">
+                        <h3 className="font-display font-semibold text-navy-900 pt-2 border-t border-cream-200">
+                            Types de montant
+                        </h3>
 
-                            <span className="font-bold">
+                        <div className="space-y-3">
+                            {typesMt.map((type) => (
+                                <div
+                                    key={type.id_type_mt}
+                                    className="flex items-center gap-4"
+                                >
+                                    <label className="w-48 text-sm font-medium text-gray-700">
+                                        {type.libelle} :
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        value={data.montants[type.id_type_mt] || ''}
+                                        onChange={(e) =>
+                                            setData('montants', {
+                                                ...data.montants,
+                                                [type.id_type_mt]: e.target.value,
+                                            })
+                                        }
+                                        className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                                    />
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Montant Global */}
+
+                        <div className="bg-navy-800 rounded-xl p-5 flex items-center justify-between">
+
+                            <span className="flex items-center gap-2 font-display font-semibold text-white">
+                                <Coins size={18} className="text-gold-400" />
                                 Montant Global
                             </span>
 
-                            <span className="font-bold text-blue-700">
+                            <span className="font-bold text-xl text-gold-300">
                                 {total.toLocaleString()} DH
                             </span>
 
                         </div>
 
-                    </div>
+                        {/* Date */}
 
-                    {/* Date */}
+                        <div>
 
-                    <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Date de visée
+                            </label>
 
-                        <label className="block text-sm font-medium mb-1">
-                            Date de visée
-                        </label>
+                            <input
+                                type="date"
+                                value={data.date_visee}
+                                onChange={(e) =>
+                                    setData('date_visee', e.target.value)
+                                }
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                            />
 
-                        <input
-                            type="date"
-                            value={data.date_visee}
-                            onChange={(e) =>
-                                setData('date_visee', e.target.value)
-                            }
-                            className="w-full border rounded-lg px-3 py-2"
-                        />
+                        </div>
 
-                    </div>
+                        {/* Observations */}
 
-                    {/* Observations */}
+                        <div>
 
-                    <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Observations
+                            </label>
 
-                        <label className="block text-sm font-medium mb-1">
-                            Observations
-                        </label>
+                            <textarea
+                                rows="3"
+                                value={data.observations}
+                                onChange={(e) =>
+                                    setData(
+                                        'observations',
+                                        e.target.value
+                                    )
+                                }
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                            />
 
-                        <textarea
-                            rows="3"
-                            value={data.observations}
-                            onChange={(e) =>
-                                setData(
-                                    'observations',
-                                    e.target.value
-                                )
-                            }
-                            className="w-full border rounded-lg px-3 py-2"
-                        />
+                        </div>
 
-                    </div>
+                        {/* Buttons */}
 
-                    {/* Buttons */}
+                        <div className="flex gap-3 pt-2">
 
-                    <div className="flex gap-3">
+                            <Button
+                                type="submit"
+                                variant="primary"
+                                disabled={processing}
+                            >
+                                {processing
+                                    ? 'Enregistrement...'
+                                    : 'Enregistrer'}
+                            </Button>
 
-                        <button
-                            type="submit"
-                            disabled={processing}
-                            className="bg-blue-600 text-white px-5 py-2 rounded-lg"
-                        >
-                            {processing
-                                ? 'Enregistrement...'
-                                : 'Enregistrer'}
-                        </button>
+                            <Button
+                                as={Link}
+                                href="/exercices"
+                                variant="secondary"
+                            >
+                                Annuler
+                            </Button>
 
-                        <Link
-                            href="/exercices"
-                            className="bg-gray-300 px-5 py-2 rounded-lg"
-                        >
-                            Annuler
-                        </Link>
+                        </div>
 
-                    </div>
+                    </form>
 
-                </form>
+                </Card>
 
             </div>
 

@@ -1,4 +1,6 @@
 import AppLayout from '@/Layouts/AppLayout';
+import Card from '@/Components/ui/Card';
+import Button from '@/Components/ui/Button';
 import { Link, useForm } from '@inertiajs/react';
 
 export default function NaturePrestationCreate({
@@ -27,193 +29,186 @@ export default function NaturePrestationCreate({
     return (
         <AppLayout title="Nouvelle nature de prestation">
 
-            <div className="max-w-2xl bg-white rounded-xl shadow p-6">
+            <div className="max-w-2xl">
 
-                <h3 className="text-lg font-semibold text-gray-700 mb-6">
-                    Nouvelle nature de prestation
-                </h3>
+                <Card title="Nouvelle nature de prestation">
 
-                <form
-                    onSubmit={submit}
-                    className="space-y-5"
-                >
+                    <form
+                        onSubmit={submit}
+                        className="space-y-5"
+                    >
 
-                    {/* Code */}
-                    <div>
+                        {/* Code */}
+                        <div>
 
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Code *
-                        </label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Code *
+                            </label>
 
-                        <input
-                            type="text"
-                            value={data.code_nat_prest}
-                            onChange={(e) =>
-                                setData(
-                                    'code_nat_prest',
-                                    e.target.value
-                                )
-                            }
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                            placeholder="Ex: NP004"
-                        />
+                            <input
+                                type="text"
+                                value={data.code_nat_prest}
+                                onChange={(e) =>
+                                    setData(
+                                        'code_nat_prest',
+                                        e.target.value
+                                    )
+                                }
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                                placeholder="Ex: NP004"
+                            />
 
-                        {errors.code_nat_prest && (
-                            <p className="text-red-500 text-xs mt-1">
-                                {errors.code_nat_prest}
-                            </p>
-                        )}
+                            {errors.code_nat_prest && (
+                                <p className="text-rose-500 text-xs mt-1">
+                                    {errors.code_nat_prest}
+                                </p>
+                            )}
 
-                    </div>
+                        </div>
 
-                    {/* Type catégorie */}
-                    <div>
+                        {/* Type catégorie */}
+                        <div>
 
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Type de catégorie *
-                        </label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Type de catégorie *
+                            </label>
 
-                        <select
-                            value={data.id_type_categorie}
-                            onChange={(e) =>
-                                setData(
-                                    'id_type_categorie',
-                                    e.target.value
-                                )
-                            }
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white"
-                        >
+                            <select
+                                value={data.id_type_categorie}
+                                onChange={(e) =>
+                                    setData(
+                                        'id_type_categorie',
+                                        e.target.value
+                                    )
+                                }
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                            >
 
-                            <option value="">
-                                -- Choisir un type de catégorie --
-                            </option>
-
-                            {typesCategories.map((type) => (
-
-                                <option
-                                    key={type.id_type_categorie}
-                                    value={type.id_type_categorie}
-                                >
-                                    {type.libelle}
+                                <option value="">
+                                    -- Choisir un type de catégorie --
                                 </option>
 
-                            ))}
+                                {typesCategories.map((type) => (
 
-                        </select>
+                                    <option
+                                        key={type.id_type_categorie}
+                                        value={type.id_type_categorie}
+                                    >
+                                        {type.libelle}
+                                    </option>
 
-                        {errors.id_type_categorie && (
-                            <p className="text-red-500 text-xs mt-1">
-                                {errors.id_type_categorie}
-                            </p>
-                        )}
+                                ))}
 
-                    </div>
+                            </select>
 
-                    {/* Intitulé FR */}
-                    <div>
+                            {errors.id_type_categorie && (
+                                <p className="text-rose-500 text-xs mt-1">
+                                    {errors.id_type_categorie}
+                                </p>
+                            )}
 
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Intitulé FR *
-                        </label>
+                        </div>
 
-                        <input
-                            type="text"
-                            value={data.intitule_fr}
-                            onChange={(e) =>
-                                setData(
-                                    'intitule_fr',
-                                    e.target.value
-                                )
-                            }
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                        />
+                        {/* Intitulé FR */}
+                        <div>
 
-                        {errors.intitule_fr && (
-                            <p className="text-red-500 text-xs mt-1">
-                                {errors.intitule_fr}
-                            </p>
-                        )}
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Intitulé FR *
+                            </label>
 
-                    </div>
+                            <input
+                                type="text"
+                                value={data.intitule_fr}
+                                onChange={(e) =>
+                                    setData(
+                                        'intitule_fr',
+                                        e.target.value
+                                    )
+                                }
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                            />
 
-                    {/* Intitulé AR */}
-                    <div>
+                            {errors.intitule_fr && (
+                                <p className="text-rose-500 text-xs mt-1">
+                                    {errors.intitule_fr}
+                                </p>
+                            )}
 
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Intitulé AR
-                        </label>
+                        </div>
 
-                        <input
-                            type="text"
-                            dir="rtl"
-                            value={data.intitule_ar}
-                            onChange={(e) =>
-                                setData(
-                                    'intitule_ar',
-                                    e.target.value
-                                )
-                            }
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                        />
+                        {/* Intitulé AR */}
+                        <div>
 
-                        {errors.intitule_ar && (
-                            <p className="text-red-500 text-xs mt-1">
-                                {errors.intitule_ar}
-                            </p>
-                        )}
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Intitulé AR
+                            </label>
 
-                    </div>
+                            <input
+                                type="text"
+                                dir="rtl"
+                                value={data.intitule_ar}
+                                onChange={(e) =>
+                                    setData(
+                                        'intitule_ar',
+                                        e.target.value
+                                    )
+                                }
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                            />
 
-                    {/* Description */}
-                    <div>
+                            {errors.intitule_ar && (
+                                <p className="text-rose-500 text-xs mt-1">
+                                    {errors.intitule_ar}
+                                </p>
+                            )}
 
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Description
-                        </label>
+                        </div>
 
-                        <textarea
-                            rows={3}
-                            value={data.description}
-                            onChange={(e) =>
-                                setData(
-                                    'description',
-                                    e.target.value
-                                )
-                            }
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                        />
+                        {/* Description */}
+                        <div>
 
-                        {errors.description && (
-                            <p className="text-red-500 text-xs mt-1">
-                                {errors.description}
-                            </p>
-                        )}
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Description
+                            </label>
 
-                    </div>
+                            <textarea
+                                rows={3}
+                                value={data.description}
+                                onChange={(e) =>
+                                    setData(
+                                        'description',
+                                        e.target.value
+                                    )
+                                }
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                            />
 
-                    {/* Buttons */}
-                    <div className="flex gap-3 pt-2">
+                            {errors.description && (
+                                <p className="text-rose-500 text-xs mt-1">
+                                    {errors.description}
+                                </p>
+                            )}
 
-                        <button
-                            type="submit"
-                            disabled={processing}
-                            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
-                        >
-                            {processing
-                                ? 'Enregistrement...'
-                                : 'Enregistrer'}
-                        </button>
+                        </div>
 
-                        <Link
-                            href="/natures-prestation"
-                            className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300"
-                        >
-                            Annuler
-                        </Link>
+                        {/* Buttons */}
+                        <div className="flex gap-3 pt-2">
 
-                    </div>
+                            <Button type="submit" variant="primary" disabled={processing}>
+                                {processing
+                                    ? 'Enregistrement...'
+                                    : 'Enregistrer'}
+                            </Button>
 
-                </form>
+                            <Button as={Link} href="/natures-prestation" variant="secondary">
+                                Annuler
+                            </Button>
+
+                        </div>
+
+                    </form>
+
+                </Card>
 
             </div>
 
