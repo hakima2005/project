@@ -1,4 +1,6 @@
 import AppLayout from '@/Layouts/AppLayout';
+import Card from '@/Components/ui/Card';
+import Button from '@/Components/ui/Button';
 import { useForm, Link } from '@inertiajs/react';
 
 export default function Edit({ devis, bons_commande, fournisseurs }) {
@@ -34,153 +36,142 @@ export default function Edit({ devis, bons_commande, fournisseurs }) {
     return (
         <AppLayout title="Modifier devis">
 
-            <div className="max-w-3xl bg-white rounded-xl shadow p-6">
+            <div className="max-w-3xl">
+                <Card title="Modifier le devis">
 
-                <h2 className="text-xl font-semibold mb-6">
-                    Modifier le devis
-                </h2>
+                    <form onSubmit={submit} className="space-y-4">
 
-                <form onSubmit={submit} className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
 
-                    <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Bon de commande</label>
 
-                        <div>
-                            <label>Bon de commande</label>
+                                <select
+                                    value={data.reference_bc}
+                                    onChange={e => setData('reference_bc', e.target.value)}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                                >
+                                    {bons_commande.map(bc => (
+                                        <option
+                                            key={bc.reference_bc}
+                                            value={bc.reference_bc}
+                                        >
+                                            {bc.reference_bc}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
 
-                            <select
-                                value={data.reference_bc}
-                                onChange={e => setData('reference_bc', e.target.value)}
-                                className="w-full border rounded-lg p-2"
-                            >
-                                {bons_commande.map(bc => (
-                                    <option
-                                        key={bc.reference_bc}
-                                        value={bc.reference_bc}
-                                    >
-                                        {bc.reference_bc}
-                                    </option>
-                                ))}
-                            </select>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Fournisseur</label>
+
+                                <select
+                                    value={data.id_fournisseur}
+                                    onChange={e => setData('id_fournisseur', e.target.value)}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                                >
+                                    {fournisseurs.map(f => (
+                                        <option
+                                            key={f.id_fournisseur}
+                                            value={f.id_fournisseur}
+                                        >
+                                            {f.raison_sociale}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Référence devis</label>
+
+                                <input
+                                    type="text"
+                                    value={data.reference_devis}
+                                    onChange={e => setData('reference_devis', e.target.value)}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Date devis</label>
+
+                                <input
+                                    type="date"
+                                    value={data.date_devis}
+                                    onChange={e => setData('date_devis', e.target.value)}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                                />
+                            </div>
+
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-4">
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Montant HT</label>
+
+                                <input
+                                    type="number"
+                                    value={data.montant_ht}
+                                    onChange={e => calcTTC(e.target.value, data.montant_tva)}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">TVA</label>
+
+                                <input
+                                    type="number"
+                                    value={data.montant_tva}
+                                    onChange={e => calcTTC(data.montant_ht, e.target.value)}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Montant TTC</label>
+
+                                <input
+                                    type="number"
+                                    value={data.montant_ttc}
+                                    readOnly
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-cream-100 font-semibold text-navy-900"
+                                />
+                            </div>
+
                         </div>
 
                         <div>
-                            <label>Fournisseur</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Observation</label>
 
-                            <select
-                                value={data.id_fournisseur}
-                                onChange={e => setData('id_fournisseur', e.target.value)}
-                                className="w-full border rounded-lg p-2"
-                            >
-                                {fournisseurs.map(f => (
-                                    <option
-                                        key={f.id_fournisseur}
-                                        value={f.id_fournisseur}
-                                    >
-                                        {f.raison_sociale}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-
-                        <div>
-                            <label>Référence devis</label>
-
-                            <input
-                                type="text"
-                                value={data.reference_devis}
-                                onChange={e => setData('reference_devis', e.target.value)}
-                                className="w-full border rounded-lg p-2"
+                            <textarea
+                                rows="3"
+                                value={data.observation}
+                                onChange={e => setData('observation', e.target.value)}
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
                             />
                         </div>
 
-                        <div>
-                            <label>Date devis</label>
+                        <div className="flex gap-3 pt-2">
 
-                            <input
-                                type="date"
-                                value={data.date_devis}
-                                onChange={e => setData('date_devis', e.target.value)}
-                                className="w-full border rounded-lg p-2"
-                            />
+                            <Button type="submit" variant="primary" disabled={processing}>
+                                Mettre à jour
+                            </Button>
+
+                            <Button as={Link} href="/devis" variant="secondary">
+                                Annuler
+                            </Button>
+
                         </div>
 
-                    </div>
+                    </form>
 
-                    <div className="grid grid-cols-3 gap-4">
-
-                        <div>
-                            <label>Montant HT</label>
-
-                            <input
-                                type="number"
-                                value={data.montant_ht}
-                                onChange={e => calcTTC(e.target.value, data.montant_tva)}
-                                className="w-full border rounded-lg p-2"
-                            />
-                        </div>
-
-                        <div>
-                            <label>TVA</label>
-
-                            <input
-                                type="number"
-                                value={data.montant_tva}
-                                onChange={e => calcTTC(data.montant_ht, e.target.value)}
-                                className="w-full border rounded-lg p-2"
-                            />
-                        </div>
-
-                        <div>
-                            <label>Montant TTC</label>
-
-                            <input
-                                type="number"
-                                value={data.montant_ttc}
-                                readOnly
-                                className="w-full border rounded-lg p-2 bg-gray-100"
-                            />
-                        </div>
-
-                    </div>
-
-                    <div>
-
-                        <label>Observation</label>
-
-                        <textarea
-                            rows="3"
-                            value={data.observation}
-                            onChange={e => setData('observation', e.target.value)}
-                            className="w-full border rounded-lg p-2"
-                        />
-
-                    </div>
-
-                    <div className="flex gap-3">
-
-                        <button
-                            type="submit"
-                            disabled={processing}
-                            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
-                        >
-                            Mettre à jour
-                        </button>
-
-                        <Link
-                            href="/devis"
-                            className="bg-gray-300 px-6 py-2 rounded-lg"
-                        >
-                            Annuler
-                        </Link>
-
-                    </div>
-
-                </form>
-
+                </Card>
             </div>
 
         </AppLayout>
