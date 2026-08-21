@@ -5,7 +5,6 @@ import Badge from '@/Components/ui/Badge';
 import { Link, router } from '@inertiajs/react';
 import { Upload, Plus, Pencil, CheckCircle2, Trash2 } from 'lucide-react';
 
-
 export default function DevisIndex({
     devis = [],
 }) {
@@ -49,6 +48,27 @@ export default function DevisIndex({
     };
 
 
+    /**
+     * =========================================================
+     * NORMALISATION DU STATUT
+     * =========================================================
+     *
+     * La base contient :
+     *
+     * Retenu
+     * Rejeté
+     * Reçu
+     *
+     * On normalise uniquement pour les comparaisons.
+     */
+    const getStatut = (devis) => {
+
+        return (devis.statut?.nom_fr || 'Reçu')
+            .trim()
+            .toLowerCase();
+    };
+
+
     return (
 
         <AppLayout title="Devis">
@@ -63,7 +83,8 @@ export default function DevisIndex({
                             href={route('devis.import')}
                             variant="secondary"
                         >
-                            <Upload size={16} /> Importer un document
+                            <Upload size={16} />
+                            Importer un document
                         </Button>
 
                         <Button
@@ -71,7 +92,8 @@ export default function DevisIndex({
                             href={route('devis.create')}
                             variant="primary"
                         >
-                            <Plus size={16} /> Nouveau devis
+                            <Plus size={16} />
+                            Nouveau devis
                         </Button>
 
                     </div>
@@ -139,126 +161,139 @@ export default function DevisIndex({
 
                             {devis.length > 0 ? (
 
-                                devis.map((d) => (
+                                devis.map((d) => {
 
-                                    <tr
-                                        key={d.id_devis}
-                                        className="border-t border-cream-200 hover:bg-cream-50"
-                                    >
+                                    const statut = getStatut(d);
 
-                                        {/* Référence */}
+                                    const estRetenu =
+                                        statut === 'retenu';
 
-                                        <td className="p-3 font-mono text-navy-700">
-                                            {d.reference_devis}
-                                        </td>
+                                    const estRejete =
+                                        statut === 'rejeté';
 
-
-                                        {/* BC */}
-
-                                        <td className="p-3 text-navy-600">
-                                            {d.reference_bc}
-                                        </td>
+                                    const estRecu =
+                                        statut === 'reçu';
 
 
-                                        {/* Fournisseur */}
+                                    return (
 
-                                        <td className="p-3">
-                                            {d.fournisseur?.raison_sociale ||
-                                                '—'}
-                                        </td>
+                                        <tr
+                                            key={d.id_devis}
+                                            className="border-t border-cream-200 hover:bg-cream-50"
+                                        >
 
+                                            {/* Référence */}
 
-                                        {/* HT */}
-
-                                        <td className="p-3">
-                                            {formatMontant(
-                                                d.montant_ht
-                                            )}{' '}
-                                            MAD
-                                        </td>
+                                            <td className="p-3 font-mono text-navy-700">
+                                                {d.reference_devis}
+                                            </td>
 
 
-                                        {/* TVA */}
+                                            {/* BC */}
 
-                                        <td className="p-3 text-navy-600">
-                                            {formatMontant(
-                                                d.montant_tva
-                                            )}{' '}
-                                            MAD
-                                        </td>
+                                            <td className="p-3 text-navy-600">
+                                                {d.reference_bc}
+                                            </td>
 
 
-                                        {/* RAS */}
+                                            {/* Fournisseur */}
 
-                                        <td className="p-3 text-gold-700">
-                                            {formatMontant(
-                                                d.montant_retenue
-                                            )}{' '}
-                                            MAD
-                                        </td>
+                                            <td className="p-3">
+                                                {d.fournisseur?.raison_sociale ||
+                                                    '—'}
+                                            </td>
 
 
-                                        {/* TTC */}
+                                            {/* HT */}
 
-                                        <td className="p-3 font-semibold text-navy-900">
-                                            {formatMontant(
-                                                d.montant_ttc
-                                            )}{' '}
-                                            MAD
-                                        </td>
-
-
-                                        {/* Date */}
-
-                                        <td className="p-3">
-                                            {d.date_devis}
-                                        </td>
+                                            <td className="p-3">
+                                                {formatMontant(
+                                                    d.montant_ht
+                                                )}{' '}
+                                                MAD
+                                            </td>
 
 
-                                        {/* Statut */}
+                                            {/* TVA */}
 
-                                        <td className="p-3">
-
-                                            <Badge
-                                                tone={
-                                                    d.statut?.nom_fr === 'retenu'
-                                                        ? 'success'
-                                                        : d.statut?.nom_fr === 'rejeté'
-                                                        ? 'danger'
-                                                        : 'neutral'
-                                                }
-                                            >
-                                                {d.statut?.nom_fr ||
-                                                    'reçu'}
-                                            </Badge>
-
-                                        </td>
+                                            <td className="p-3 text-navy-600">
+                                                {formatMontant(
+                                                    d.montant_tva
+                                                )}{' '}
+                                                MAD
+                                            </td>
 
 
-                                        {/* Actions */}
+                                            {/* RAS */}
 
-                                        <td className="p-3">
+                                            <td className="p-3 text-gold-700">
+                                                {formatMontant(
+                                                    d.montant_retenue
+                                                )}{' '}
+                                                MAD
+                                            </td>
 
-                                            <div className="flex items-center gap-3 whitespace-nowrap">
 
-                                                {/* Modifier */}
+                                            {/* TTC */}
 
-                                                <Link
-                                                    href={route(
-                                                        'devis.edit',
-                                                        d.id_devis
-                                                    )}
-                                                    className="text-gold-600 hover:text-gold-700"
-                                                    title="Modifier"
+                                            <td className="p-3 font-semibold text-navy-900">
+                                                {formatMontant(
+                                                    d.montant_ttc
+                                                )}{' '}
+                                                MAD
+                                            </td>
+
+
+                                            {/* Date */}
+
+                                            <td className="p-3">
+                                                {d.date_devis}
+                                            </td>
+
+
+                                            {/* Statut */}
+
+                                            <td className="p-3">
+
+                                                <Badge
+                                                    tone={
+                                                        estRetenu
+                                                            ? 'success'
+                                                            : estRejete
+                                                            ? 'danger'
+                                                            : 'neutral'
+                                                    }
                                                 >
-                                                    <Pencil size={16} />
-                                                </Link>
+                                                    {d.statut?.nom_fr ||
+                                                        'Reçu'}
+                                                </Badge>
+
+                                            </td>
 
 
-                                                {/* Retenir */}
+                                            {/* Actions */}
 
-                                                {d.statut?.nom_fr !==
-                                                    'retenu' && (
+                                            <td className="p-3">
+
+                                                <div className="flex items-center gap-3 whitespace-nowrap">
+
+                                                    {/* Modifier */}
+
+                                                    <Link
+                                                        href={route(
+                                                            'devis.edit',
+                                                            d.id_devis
+                                                        )}
+                                                        className="text-gold-600 hover:text-gold-700"
+                                                        title="Modifier"
+                                                    >
+                                                        <Pencil size={16} />
+                                                    </Link>
+
+
+                                                    {/* Retenir */}
+
+                                                    {!estRetenu && !estRejete && (
 
                                                         <button
                                                             type="button"
@@ -276,39 +311,41 @@ export default function DevisIndex({
                                                     )}
 
 
-                                                {/* Supprimer */}
+                                                    {/* Supprimer */}
 
-                                                <Link
-                                                    href={route(
-                                                        'devis.destroy',
-                                                        d.id_devis
-                                                    )}
-                                                    method="delete"
-                                                    as="button"
-                                                    className="text-rose-600 hover:text-rose-700"
-                                                    title="Supprimer"
-                                                    onClick={(e) => {
+                                                    <Link
+                                                        href={route(
+                                                            'devis.destroy',
+                                                            d.id_devis
+                                                        )}
+                                                        method="delete"
+                                                        as="button"
+                                                        className="text-rose-600 hover:text-rose-700"
+                                                        title="Supprimer"
+                                                        onClick={(e) => {
 
-                                                        if (
-                                                            !confirm(
-                                                                'Supprimer ce devis ?'
-                                                            )
-                                                        ) {
-                                                            e.preventDefault();
-                                                        }
+                                                            if (
+                                                                !confirm(
+                                                                    'Supprimer ce devis ?'
+                                                                )
+                                                            ) {
+                                                                e.preventDefault();
+                                                            }
 
-                                                    }}
-                                                >
-                                                    <Trash2 size={16} />
-                                                </Link>
+                                                        }}
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </Link>
 
-                                            </div>
+                                                </div>
 
-                                        </td>
+                                            </td>
 
-                                    </tr>
+                                        </tr>
 
-                                ))
+                                    );
+
+                                })
 
                             ) : (
 
@@ -336,3 +373,4 @@ export default function DevisIndex({
         </AppLayout>
     );
 }
+

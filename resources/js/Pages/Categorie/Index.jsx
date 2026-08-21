@@ -1,4 +1,5 @@
 import AppLayout from '@/Layouts/AppLayout';
+import Card from '@/Components/ui/Card';
 import { router } from '@inertiajs/react';
 
 export default function CategorieIndex({
@@ -41,23 +42,10 @@ export default function CategorieIndex({
     return (
         <AppLayout title="Catégories budgétaires">
 
-            <div className="bg-white rounded-xl shadow p-6">
-
-                {/* Header */}
-                <div className="flex items-center justify-between mb-6">
-
-                    <div>
-                        <h3 className="text-lg font-semibold text-gray-700">
-                            Catégories budgétaires
-                        </h3>
-
-                        <p className="text-sm text-gray-500 mt-1">
-                            Liste des types de catégories et des natures
-                            de prestations
-                        </p>
-                    </div>
-
-                    {/* Exercice */}
+            <Card
+                title="Catégories budgétaires"
+                subtitle="Liste des types de catégories et des natures de prestations"
+                actions={
                     <div className="flex items-center gap-3">
 
                         <label className="text-sm font-medium text-gray-700">
@@ -67,7 +55,7 @@ export default function CategorieIndex({
                         <select
                             value={id_exercice || ''}
                             onChange={handleExerciceChange}
-                            className="border border-gray-300 rounded-lg px-4 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className="border border-gray-300 rounded-lg px-4 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
                         >
                             <option value="">
                                 -- Choisir --
@@ -84,8 +72,8 @@ export default function CategorieIndex({
                         </select>
 
                     </div>
-
-                </div>
+                }
+            >
 
                 {/* Tableau */}
                 {id_exercice ? (
@@ -95,21 +83,21 @@ export default function CategorieIndex({
                         <table className="w-full text-sm border-collapse">
 
                             <thead>
-                                <tr className="bg-gray-50 text-gray-600">
+                                <tr className="bg-cream-100 text-gray-600">
 
-                                    <th className="text-left p-3 border-b">
+                                    <th className="text-left p-3 rounded-l-lg">
                                         Type catégorie
                                     </th>
 
-                                    <th className="text-left p-3 border-b">
+                                    <th className="text-left p-3">
                                         Code nature
                                     </th>
 
-                                    <th className="text-left p-3 border-b">
+                                    <th className="text-left p-3">
                                         Nature de prestation
                                     </th>
 
-                                    <th className="text-right p-3 border-b">
+                                    <th className="text-right p-3 rounded-r-lg">
                                         Budget affecté
                                     </th>
 
@@ -135,10 +123,10 @@ export default function CategorieIndex({
                                             return (
                                                 <tr
                                                     key={type.id_type_categorie}
-                                                    className="border-b hover:bg-gray-50"
+                                                    className="border-b border-cream-200 hover:bg-cream-50"
                                                 >
 
-                                                    <td className="p-3 font-medium">
+                                                    <td className="p-3 font-medium text-navy-900">
                                                         {type.libelle}
                                                     </td>
 
@@ -150,7 +138,7 @@ export default function CategorieIndex({
                                                         Aucune nature de prestation
                                                     </td>
 
-                                                    <td className="p-3 text-right font-semibold">
+                                                    <td className="p-3 text-right font-semibold text-navy-800">
                                                         {formatMontant(
                                                             type.budget_affecte
                                                         )}
@@ -169,7 +157,7 @@ export default function CategorieIndex({
 
                                                 <tr
                                                     key={`${type.id_type_categorie}-${nature.code_nat_prest}`}
-                                                    className="border-b hover:bg-gray-50"
+                                                    className="border-b border-cream-200 hover:bg-cream-50"
                                                 >
 
                                                     {/* Type catégorie */}
@@ -178,14 +166,14 @@ export default function CategorieIndex({
                                                             rowSpan={
                                                                 naturePrestations.length
                                                             }
-                                                            className="p-3 align-top font-medium"
+                                                            className="p-3 align-top font-medium text-navy-900"
                                                         >
                                                             {type.libelle}
                                                         </td>
                                                     ) : null}
 
                                                     {/* Code nature */}
-                                                    <td className="p-3">
+                                                    <td className="p-3 font-mono text-xs">
                                                         {nature.code_nat_prest}
                                                     </td>
 
@@ -200,7 +188,7 @@ export default function CategorieIndex({
                                                             rowSpan={
                                                                 naturePrestations.length
                                                             }
-                                                            className="p-3 text-right align-top font-semibold"
+                                                            className="p-3 text-right align-top font-semibold text-navy-800"
                                                         >
                                                             {formatMontant(
                                                                 type.budget_affecte
@@ -241,7 +229,7 @@ export default function CategorieIndex({
 
                 )}
 
-            </div>
+            </Card>
 
         </AppLayout>
     );

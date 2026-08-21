@@ -1,4 +1,6 @@
 import AppLayout from '@/Layouts/AppLayout';
+import Card from '@/Components/ui/Card';
+import Button from '@/Components/ui/Button';
 import { useForm, Link } from '@inertiajs/react';
 
 export default function Edit({ natures, decret }) {
@@ -18,123 +20,114 @@ export default function Edit({ natures, decret }) {
     return (
         <AppLayout title="Modifier le décret RAS">
 
-            <div className="max-w-lg bg-white rounded-xl shadow p-6">
+            <div className="max-w-lg">
+                <Card title="Modifier le décret RAS">
 
-                <h2 className="text-lg font-semibold text-gray-800 mb-6">
-                    Modifier le décret RAS
-                </h2>
+                    <form onSubmit={submit} className="space-y-4">
 
-                <form onSubmit={submit} className="space-y-4">
+                        {/* DATE */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Date *
+                            </label>
 
-                    {/* DATE */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Date *
-                        </label>
+                            <input
+                                type="date"
+                                value={data.date}
+                                onChange={(e) =>
+                                    setData('date', e.target.value)
+                                }
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                            />
 
-                        <input
-                            type="date"
-                            value={data.date}
-                            onChange={(e) =>
-                                setData('date', e.target.value)
-                            }
-                            className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
+                            {errors.date && (
+                                <p className="text-rose-500 text-xs mt-1">
+                                    {errors.date}
+                                </p>
+                            )}
+                        </div>
 
-                        {errors.date && (
-                            <p className="text-red-500 text-xs mt-1">
-                                {errors.date}
-                            </p>
-                        )}
-                    </div>
+                        {/* NATURE */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Nature de prestation *
+                            </label>
 
-                    {/* NATURE */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Nature de prestation *
-                        </label>
-
-                        <select
-                            value={data.code_nat_prest}
-                            onChange={(e) =>
-                                setData(
-                                    'code_nat_prest',
-                                    e.target.value
-                                )
-                            }
-                            className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                            <option value="">
-                                -- Choisir une nature --
-                            </option>
-
-                            {natures?.map((nature) => (
-                                <option
-                                    key={nature.code_nat_prest}
-                                    value={nature.code_nat_prest}
-                                >
-                                    {nature.intitule_fr}
+                            <select
+                                value={data.code_nat_prest}
+                                onChange={(e) =>
+                                    setData(
+                                        'code_nat_prest',
+                                        e.target.value
+                                    )
+                                }
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                            >
+                                <option value="">
+                                    -- Choisir une nature --
                                 </option>
-                            ))}
-                        </select>
 
-                        {errors.code_nat_prest && (
-                            <p className="text-red-500 text-xs mt-1">
-                                {errors.code_nat_prest}
-                            </p>
-                        )}
-                    </div>
+                                {natures?.map((nature) => (
+                                    <option
+                                        key={nature.code_nat_prest}
+                                        value={nature.code_nat_prest}
+                                    >
+                                        {nature.intitule_fr}
+                                    </option>
+                                ))}
+                            </select>
 
-                    {/* TAUX */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Taux (%) *
-                        </label>
+                            {errors.code_nat_prest && (
+                                <p className="text-rose-500 text-xs mt-1">
+                                    {errors.code_nat_prest}
+                                </p>
+                            )}
+                        </div>
 
-                        <input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            max="100"
-                            value={data.taux}
-                            onChange={(e) =>
-                                setData('taux', e.target.value)
-                            }
-                            className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Ex: 10"
-                        />
+                        {/* TAUX */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Taux (%) *
+                            </label>
 
-                        {errors.taux && (
-                            <p className="text-red-500 text-xs mt-1">
-                                {errors.taux}
-                            </p>
-                        )}
-                    </div>
+                            <input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                max="100"
+                                value={data.taux}
+                                onChange={(e) =>
+                                    setData('taux', e.target.value)
+                                }
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                                placeholder="Ex: 10"
+                            />
 
-                    {/* BUTTONS */}
-                    <div className="flex gap-3 pt-3">
+                            {errors.taux && (
+                                <p className="text-rose-500 text-xs mt-1">
+                                    {errors.taux}
+                                </p>
+                            )}
+                        </div>
 
-                        <button
-                            type="submit"
-                            disabled={processing}
-                            className="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm hover:bg-blue-700 disabled:opacity-50"
-                        >
-                            {processing
-                                ? 'Modification...'
-                                : 'Enregistrer'}
-                        </button>
+                        {/* BUTTONS */}
+                        <div className="flex gap-3 pt-3">
 
-                        <Link
-                            href="/decret-ras"
-                            className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg text-sm hover:bg-gray-300"
-                        >
-                            Annuler
-                        </Link>
+                            <Button type="submit" variant="primary" disabled={processing}>
+                                {processing
+                                    ? 'Modification...'
+                                    : 'Enregistrer'}
+                            </Button>
 
-                    </div>
+                            <Button as={Link} href="/decret-ras" variant="secondary">
+                                Annuler
+                            </Button>
 
-                </form>
+                        </div>
 
+                    </form>
+
+                </Card>
             </div>
 
         </AppLayout>

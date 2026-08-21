@@ -1,4 +1,6 @@
 import AppLayout from '@/Layouts/AppLayout';
+import Card from '@/Components/ui/Card';
+import Button from '@/Components/ui/Button';
 import { useForm, Link } from '@inertiajs/react';
 
 export default function Create() {
@@ -15,49 +17,45 @@ export default function Create() {
     return (
         <AppLayout title="Ajouter un type de montant">
 
-            <div className="max-w-xl bg-white rounded-xl shadow p-6">
+            <div className="max-w-xl">
+                <Card title="Ajouter un type de montant">
 
-                <form onSubmit={submit} className="space-y-5">
+                    <form onSubmit={submit} className="space-y-5">
 
-                    <div>
-                        <label className="block mb-1 font-medium">
-                            Libellé
-                        </label>
+                        <div>
+                            <label className="block mb-1 text-sm font-medium text-gray-700">
+                                Libellé
+                            </label>
 
-                        <input
-                            type="text"
-                            value={data.libelle}
-                            onChange={e => setData('libelle', e.target.value)}
-                            className="w-full border rounded-lg px-3 py-2"
-                        />
+                            <input
+                                type="text"
+                                value={data.libelle}
+                                onChange={e => setData('libelle', e.target.value)}
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                            />
 
-                        {errors.libelle &&
-                            <p className="text-red-500 text-sm">
-                                {errors.libelle}
-                            </p>
-                        }
-                    </div>
-                    <div className="flex gap-3">
+                            {errors.libelle &&
+                                <p className="text-rose-500 text-xs mt-1">
+                                    {errors.libelle}
+                                </p>
+                            }
+                        </div>
 
-                        <button
-                            type="submit"
-                            disabled={processing}
-                            className="bg-blue-600 text-white px-5 py-2 rounded-lg"
-                        >
-                            Enregistrer
-                        </button>
+                        <div className="flex gap-3">
 
-                        <Link
-                            href={route('type-mts.index')}
-                            className="bg-gray-300 px-5 py-2 rounded-lg"
-                        >
-                            Annuler
-                        </Link>
+                            <Button type="submit" variant="primary" disabled={processing}>
+                                Enregistrer
+                            </Button>
 
-                    </div>
+                            <Button as={Link} href={route('type-mts.index')} variant="secondary">
+                                Annuler
+                            </Button>
 
-                </form>
+                        </div>
 
+                    </form>
+
+                </Card>
             </div>
 
         </AppLayout>

@@ -1,4 +1,6 @@
 import AppLayout from '@/Layouts/AppLayout';
+import Card from '@/Components/ui/Card';
+import Button from '@/Components/ui/Button';
 import { useForm, Link } from '@inertiajs/react';
 
 export default function Edit({ typeMt }) {
@@ -16,66 +18,61 @@ export default function Edit({ typeMt }) {
     return (
         <AppLayout title="Modifier un type de montant">
 
-            <div className="max-w-xl bg-white rounded-xl shadow p-6">
+            <div className="max-w-xl">
+                <Card title="Modifier un type de montant">
 
-                <form onSubmit={submit} className="space-y-5">
+                    <form onSubmit={submit} className="space-y-5">
 
-                    <div>
-                        <label className="block mb-1 font-medium">
-                            Libellé
-                        </label>
+                        <div>
+                            <label className="block mb-1 text-sm font-medium text-gray-700">
+                                Libellé
+                            </label>
 
-                        <input
-                            type="text"
-                            value={data.libelle}
-                            onChange={e => setData('libelle', e.target.value)}
-                            className="w-full border rounded-lg px-3 py-2"
-                        />
+                            <input
+                                type="text"
+                                value={data.libelle}
+                                onChange={e => setData('libelle', e.target.value)}
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                            />
 
-                        {errors.libelle && (
-                            <p className="text-red-500 text-sm">
-                                {errors.libelle}
-                            </p>
-                        )}
-                    </div>
+                            {errors.libelle && (
+                                <p className="text-rose-500 text-xs mt-1">
+                                    {errors.libelle}
+                                </p>
+                            )}
+                        </div>
 
 
-                    <div>
-                        <label className="block mb-2 font-medium">
-                            Statut
-                        </label>
+                        <div>
+                            <label className="block mb-2 text-sm font-medium text-gray-700">
+                                Statut
+                            </label>
 
-                        <select
-                            value={data.actif ? 1 : 0}
-                            onChange={e => setData('actif', Number(e.target.value))}
-                            className="w-full border rounded-lg px-3 py-2"
-                        >
-                            <option value={1}>Actif</option>
-                            <option value={0}>Inactif</option>
-                        </select>
-                    </div>
+                            <select
+                                value={data.actif ? 1 : 0}
+                                onChange={e => setData('actif', Number(e.target.value))}
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                            >
+                                <option value={1}>Actif</option>
+                                <option value={0}>Inactif</option>
+                            </select>
+                        </div>
 
-                    <div className="flex gap-3">
+                        <div className="flex gap-3">
 
-                        <button
-                            type="submit"
-                            className="bg-blue-600 text-white px-5 py-2 rounded-lg"
-                            disabled={processing}
-                        >
-                            Enregistrer
-                        </button>
+                            <Button type="submit" variant="primary" disabled={processing}>
+                                Enregistrer
+                            </Button>
 
-                        <Link
-                            href="/type-mts"
-                            className="bg-gray-300 px-5 py-2 rounded-lg"
-                        >
-                            Annuler
-                        </Link>
+                            <Button as={Link} href="/type-mts" variant="secondary">
+                                Annuler
+                            </Button>
 
-                    </div>
+                        </div>
 
-                </form>
+                    </form>
 
+                </Card>
             </div>
 
         </AppLayout>

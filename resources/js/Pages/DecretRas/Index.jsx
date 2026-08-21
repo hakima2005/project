@@ -1,5 +1,8 @@
 import AppLayout from '@/Layouts/AppLayout';
+import Card from '@/Components/ui/Card';
+import Button from '@/Components/ui/Button';
 import { Link, router } from '@inertiajs/react';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
 
 export default function Index({ decrets }) {
     const handleDelete = (id) => {
@@ -10,40 +13,46 @@ export default function Index({ decrets }) {
 
     return (
         <AppLayout title="décrets RAS">
-            <div className="bg-white rounded-xl shadow p-6">
-                <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-semibold text-gray-700">Liste des décrets RAS</h3>
-                    <Link href="/decret-ras/create" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">
-                        + Ajouter
-                    </Link>
-                </div>
-
+            <Card
+                title="Liste des décrets RAS"
+                actions={
+                    <Button as={Link} href="/decret-ras/create" variant="primary">
+                        <Plus size={16} /> Ajouter
+                    </Button>
+                }
+            >
                 <table className="w-full text-sm">
                     <thead>
-                        <tr className="bg-gray-50">
-                            <th className="p-3 text-left">Date</th>
+                        <tr className="bg-cream-100 text-gray-600">
+                            <th className="p-3 text-left rounded-l-lg">Date</th>
                             <th className="p-3 text-left">Nature de prestation</th>
                             <th className="p-3 text-right">Taux %</th>
-                            <th className="p-3 text-right">Actions</th>
+                            <th className="p-3 text-right rounded-r-lg">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {decrets?.length > 0 ? decrets.map((d) => (
-                            <tr key={d.id} className="border-t">
+                            <tr key={d.id} className="border-t border-cream-200 hover:bg-cream-50">
                                 <td className="p-3">{d.date}</td>
-                                <td className="p-3">{d.nature_prestation?.intitule_fr}</td>
-                                <td className="p-3 text-right">{d.taux} %</td>
-                                <td className="p-3 text-right space-x-2">
-                                    <Link href={`/decret-ras/${d.id}/edit`} className="text-orange-600 hover:underline">Modifier</Link>
-                                    <button onClick={() => handleDelete(d.id)} className="text-red-600 hover:underline">Supprimer</button>
+                                <td className="p-3 text-navy-900">{d.nature_prestation?.intitule_fr}</td>
+                                <td className="p-3 text-right font-medium text-gold-700">{d.taux} %</td>
+                                <td className="p-3 text-right">
+                                    <div className="flex items-center justify-end gap-3">
+                                        <Link href={`/decret-ras/${d.id}/edit`} className="text-gold-600 hover:text-gold-700" title="Modifier">
+                                            <Pencil size={16} />
+                                        </Link>
+                                        <button onClick={() => handleDelete(d.id)} className="text-rose-600 hover:text-rose-700" title="Supprimer">
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         )) : (
-                            <tr><td colSpan="4" className="p-6 text-center text-gray-400">Aucun décret</td></tr>
+                            <tr><td colSpan="4" className="p-8 text-center text-gray-400">Aucun décret</td></tr>
                         )}
                     </tbody>
                 </table>
-            </div>
+            </Card>
         </AppLayout>
     );
 }

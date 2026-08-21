@@ -1,4 +1,6 @@
 import AppLayout from '@/Layouts/AppLayout';
+import Card from '@/Components/ui/Card';
+import Button from '@/Components/ui/Button';
 import { useForm, Link } from '@inertiajs/react';
 
 export default function Create({ bon_commande, unites }) {
@@ -21,169 +23,160 @@ export default function Create({ bon_commande, unites }) {
     return (
         <AppLayout title="Ajouter une désignation">
 
-            <div className="max-w-4xl bg-white rounded-xl shadow p-6">
+            <div className="max-w-4xl">
+                <Card title="Ajouter une désignation">
 
-                <h2 className="text-lg font-semibold mb-6">
-                    Ajouter une désignation
-                </h2>
+                    <form onSubmit={submit} className="space-y-5">
 
-                <form onSubmit={submit} className="space-y-5">
+                        <div>
+                            <label className="block mb-1 text-sm font-medium text-gray-700">
+                                Désignation *
+                            </label>
 
-                    <div>
-                        <label className="block mb-1 font-medium">
-                            Désignation *
-                        </label>
+                            <input
+                                type="text"
+                                value={data.designation}
+                                onChange={(e) => setData('designation', e.target.value)}
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                            />
 
-                        <input
-                            type="text"
-                            value={data.designation}
-                            onChange={(e) => setData('designation', e.target.value)}
-                            className="w-full border rounded-lg px-3 py-2"
-                        />
+                            {errors.designation &&
+                                <p className="text-rose-500 text-xs mt-1">
+                                    {errors.designation}
+                                </p>
+                            }
+                        </div>
 
-                        {errors.designation &&
-                            <p className="text-red-500 text-sm">
-                                {errors.designation}
-                            </p>
-                        }
-                    </div>
+                        <div>
+                            <label className="block mb-1 text-sm font-medium text-gray-700">
+                                Unité
+                            </label>
 
-                    <div>
-                        <label className="block mb-1 font-medium">
-                            Unité
-                        </label>
-
-                        <select
-                            value={data.id_unite}
-                            onChange={(e) => setData('id_unite', e.target.value)}
-                            className="w-full border rounded-lg px-3 py-2"
-                        >
-                            <option value="">
-                                Choisir...
-                            </option>
-
-                            {unites.map((u) => (
-                                <option
-                                    key={u.id_unite}
-                                    value={u.id_unite}
-                                >
-                                    {u.libelle}
+                            <select
+                                value={data.id_unite}
+                                onChange={(e) => setData('id_unite', e.target.value)}
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                            >
+                                <option value="">
+                                    Choisir...
                                 </option>
-                            ))}
-                        </select>
 
-                        {errors.id_unite &&
-                            <p className="text-red-500 text-sm">
-                                {errors.id_unite}
-                            </p>
-                        }
-                    </div>
+                                {unites.map((u) => (
+                                    <option
+                                        key={u.id_unite}
+                                        value={u.id_unite}
+                                    >
+                                        {u.libelle}
+                                    </option>
+                                ))}
+                            </select>
 
-                    <div className="grid grid-cols-3 gap-4">
-
-                        <div>
-
-                            <label className="block mb-1 font-medium">
-                                Quantité *
-                            </label>
-
-                            <input
-                                type="number"
-                                step="0.01"
-                                value={data.quantite}
-                                onChange={(e) => setData('quantite', e.target.value)}
-                                className="w-full border rounded-lg px-3 py-2"
-                            />
-
-                            {errors.quantite &&
-                                <p className="text-red-500 text-sm">
-                                    {errors.quantite}
+                            {errors.id_unite &&
+                                <p className="text-rose-500 text-xs mt-1">
+                                    {errors.id_unite}
                                 </p>
                             }
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-4">
+
+                            <div>
+
+                                <label className="block mb-1 text-sm font-medium text-gray-700">
+                                    Quantité *
+                                </label>
+
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    value={data.quantite}
+                                    onChange={(e) => setData('quantite', e.target.value)}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                                />
+
+                                {errors.quantite &&
+                                    <p className="text-rose-500 text-xs mt-1">
+                                        {errors.quantite}
+                                    </p>
+                                }
+
+                            </div>
+
+                            <div>
+
+                                <label className="block mb-1 text-sm font-medium text-gray-700">
+                                    Prix unitaire HT *
+                                </label>
+
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    value={data.prix_unitaire_ht}
+                                    onChange={(e) => setData('prix_unitaire_ht', e.target.value)}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                                />
+
+                                {errors.prix_unitaire_ht &&
+                                    <p className="text-rose-500 text-xs mt-1">
+                                        {errors.prix_unitaire_ht}
+                                    </p>
+                                }
+
+                            </div>
+
+                            <div>
+
+                                <label className="block mb-1 text-sm font-medium text-gray-700">
+                                    TVA %
+                                </label>
+
+                                <input
+                                    type="number"
+                                    value={data.tva}
+                                    onChange={(e) => setData('tva', e.target.value)}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
+                                />
+
+                                {errors.tva &&
+                                    <p className="text-rose-500 text-xs mt-1">
+                                        {errors.tva}
+                                    </p>
+                                }
+
+                            </div>
 
                         </div>
 
                         <div>
 
-                            <label className="block mb-1 font-medium">
-                                Prix unitaire HT *
+                            <label className="block mb-1 text-sm font-medium text-gray-700">
+                                Observation
                             </label>
 
-                            <input
-                                type="number"
-                                step="0.01"
-                                value={data.prix_unitaire_ht}
-                                onChange={(e) => setData('prix_unitaire_ht', e.target.value)}
-                                className="w-full border rounded-lg px-3 py-2"
+                            <textarea
+                                rows="3"
+                                value={data.observation}
+                                onChange={(e) => setData('observation', e.target.value)}
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
                             />
-
-                            {errors.prix_unitaire_ht &&
-                                <p className="text-red-500 text-sm">
-                                    {errors.prix_unitaire_ht}
-                                </p>
-                            }
 
                         </div>
 
-                        <div>
+                        <div className="flex gap-3 pt-2">
 
-                            <label className="block mb-1 font-medium">
-                                TVA %
-                            </label>
+                            <Button type="submit" variant="primary" disabled={processing}>
+                                {processing ? 'Enregistrement...' : 'Enregistrer'}
+                            </Button>
 
-                            <input
-                                type="number"
-                                value={data.tva}
-                                onChange={(e) => setData('tva', e.target.value)}
-                                className="w-full border rounded-lg px-3 py-2"
-                            />
-
-                            {errors.tva &&
-                                <p className="text-red-500 text-sm">
-                                    {errors.tva}
-                                </p>
-                            }
+                            <Button as={Link} href={`/bons-commande/${bon_commande.reference_bc}`} variant="secondary">
+                                Annuler
+                            </Button>
 
                         </div>
 
-                    </div>
+                    </form>
 
-                    <div>
-
-                        <label className="block mb-1 font-medium">
-                            Observation
-                        </label>
-
-                        <textarea
-                            rows="3"
-                            value={data.observation}
-                            onChange={(e) => setData('observation', e.target.value)}
-                            className="w-full border rounded-lg px-3 py-2"
-                        />
-
-                    </div>
-
-                    <div className="flex gap-3">
-
-                        <button
-                            type="submit"
-                            disabled={processing}
-                            className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700"
-                        >
-                            {processing ? 'Enregistrement...' : 'Enregistrer'}
-                        </button>
-
-                        <Link
-                            href={`/bons-commande/${bon_commande.reference_bc}`}
-                            className="bg-gray-300 px-5 py-2 rounded-lg hover:bg-gray-400"
-                        >
-                            Annuler
-                        </Link>
-
-                    </div>
-
-                </form>
-
+                </Card>
             </div>
 
         </AppLayout>

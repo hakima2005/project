@@ -1,6 +1,9 @@
 import AppLayout from '@/Layouts/AppLayout';
+import Card from '@/Components/ui/Card';
+import Button from '@/Components/ui/Button';
 import { router } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
+import { Plus, Pencil, TrendingUp, Wallet } from 'lucide-react';
 
 function formatMontant(value) {
     return new Intl.NumberFormat('fr-FR', {
@@ -32,14 +35,6 @@ export default function SituationBudgetaireIndex({
     |--------------------------------------------------------------------------
     | Préparation des lignes
     |--------------------------------------------------------------------------
-    |
-    | Chaque type de catégorie possède :
-    | - id_type_categorie
-    | - libelle
-    | - n_compte
-    | - montant
-    | - reste_a_payer
-    |
     */
 
     useEffect(() => {
@@ -95,11 +90,6 @@ export default function SituationBudgetaireIndex({
     */
 
     const handleAdd = () => {
-        /*
-        | On part des lignes de l'exercice.
-        | On vide les valeurs pour permettre une nouvelle saisie.
-        */
-
         const newLines = lignes.map((ligne) => ({
             id_type_categorie:
                 ligne.id_type_categorie ??
@@ -279,17 +269,17 @@ export default function SituationBudgetaireIndex({
                     EN-TÊTE
                 ========================================================= */}
 
-                <div className="bg-white rounded-xl shadow p-6">
+                <Card>
 
                     <div className="flex justify-between items-center">
 
                         <div>
 
-                            <h2 className="text-xl font-semibold text-gray-700">
+                            <h2 className="font-display text-xl font-semibold text-navy-900">
                                 Situation budgétaire
                             </h2>
 
-                            <p className="text-gray-500 mt-1">
+                            <p className="text-gray-500 mt-1 text-sm">
                                 {exercices.find(
                                     (ex) =>
                                         Number(ex.id_exercice) ===
@@ -309,14 +299,14 @@ export default function SituationBudgetaireIndex({
 
                         <div className="flex items-center gap-3">
 
-                            <label className="text-gray-700">
+                            <label className="text-sm text-gray-700">
                                 Exercice :
                             </label>
 
                             <select
                                 value={id_exercice || ''}
                                 onChange={handleExerciceChange}
-                                className="border border-gray-300 rounded-lg px-4 py-2"
+                                className="border border-gray-300 rounded-lg px-4 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
                             >
 
                                 <option value="">
@@ -340,7 +330,7 @@ export default function SituationBudgetaireIndex({
 
                     </div>
 
-                </div>
+                </Card>
 
 
                 {/* =========================================================
@@ -351,13 +341,9 @@ export default function SituationBudgetaireIndex({
 
                     <div className="flex justify-end">
 
-                        <button
-                            type="button"
-                            onClick={handleAdd}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg"
-                        >
-                            + Ajouter une situation budgétaire
-                        </button>
+                        <Button type="button" variant="primary" onClick={handleAdd}>
+                            <Plus size={16} /> Ajouter une situation budgétaire
+                        </Button>
 
                     </div>
 
@@ -370,29 +356,12 @@ export default function SituationBudgetaireIndex({
 
                 {showForm && (
 
-                    <div className="bg-white rounded-xl shadow p-6">
-
-                        <div className="flex justify-between items-center mb-5">
-
-                            <div>
-
-                                <h3 className="text-lg font-semibold text-gray-700">
-
-                                    {editing
-                                        ? 'Modifier la situation budgétaire'
-                                        : 'Ajouter une situation budgétaire'}
-
-                                </h3>
-
-                                <p className="text-sm text-gray-500 mt-1">
-                                    Remplissez les informations pour tous les
-                                    types de catégorie.
-                                </p>
-
-                            </div>
-
-                        </div>
-
+                    <Card
+                        title={editing
+                            ? 'Modifier la situation budgétaire'
+                            : 'Ajouter une situation budgétaire'}
+                        subtitle="Remplissez les informations pour tous les types de catégorie."
+                    >
 
                         {formLines.length > 0 ? (
 
@@ -402,9 +371,9 @@ export default function SituationBudgetaireIndex({
 
                                     <thead>
 
-                                        <tr className="bg-gray-50 border-b">
+                                        <tr className="bg-cream-100">
 
-                                            <th className="p-3 text-left">
+                                            <th className="p-3 text-left rounded-l-lg">
                                                 N° de compte *
                                             </th>
 
@@ -416,7 +385,7 @@ export default function SituationBudgetaireIndex({
                                                 Montant *
                                             </th>
 
-                                            <th className="p-3 text-right">
+                                            <th className="p-3 text-right rounded-r-lg">
                                                 Reste à payer *
                                             </th>
 
@@ -434,7 +403,7 @@ export default function SituationBudgetaireIndex({
                                                         ligne.id_type_categorie ??
                                                         index
                                                     }
-                                                    className="border-b"
+                                                    className="border-b border-cream-200"
                                                 >
 
                                                     {/* N° compte */}
@@ -455,7 +424,7 @@ export default function SituationBudgetaireIndex({
                                                                 )
                                                             }
                                                             placeholder="Ex : 6111"
-                                                            className="border border-gray-300 rounded-lg px-3 py-2 w-full"
+                                                            className="border border-gray-300 rounded-lg px-3 py-2 w-full text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
                                                         />
 
                                                     </td>
@@ -465,7 +434,7 @@ export default function SituationBudgetaireIndex({
 
                                                     <td className="p-3">
 
-                                                        <span className="font-medium text-gray-700">
+                                                        <span className="font-medium text-navy-900">
                                                             {
                                                                 ligne.libelle
                                                             }
@@ -493,7 +462,7 @@ export default function SituationBudgetaireIndex({
                                                                         .value
                                                                 )
                                                             }
-                                                            className="border border-gray-300 rounded-lg px-3 py-2 w-full text-right"
+                                                            className="border border-gray-300 rounded-lg px-3 py-2 w-full text-right text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
                                                         />
 
                                                     </td>
@@ -518,7 +487,7 @@ export default function SituationBudgetaireIndex({
                                                                         .value
                                                                 )
                                                             }
-                                                            className="border border-gray-300 rounded-lg px-3 py-2 w-full text-right"
+                                                            className="border border-gray-300 rounded-lg px-3 py-2 w-full text-right text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
                                                         />
 
                                                     </td>
@@ -533,7 +502,7 @@ export default function SituationBudgetaireIndex({
 
                                     <tfoot>
 
-                                        <tr className="bg-gray-50 font-semibold">
+                                        <tr className="bg-cream-100 font-semibold">
 
                                             <td
                                                 colSpan="2"
@@ -542,13 +511,13 @@ export default function SituationBudgetaireIndex({
                                                 Total
                                             </td>
 
-                                            <td className="p-3 text-right">
+                                            <td className="p-3 text-right text-navy-800">
                                                 {formatMontant(
                                                     totalMontants
                                                 )}
                                             </td>
 
-                                            <td className="p-3 text-right">
+                                            <td className="p-3 text-right text-gold-700">
                                                 {formatMontant(
                                                     totalResteForm
                                                 )}
@@ -575,32 +544,28 @@ export default function SituationBudgetaireIndex({
 
                         <div className="flex justify-end gap-3 mt-6">
 
-                            <button
-                                type="button"
-                                onClick={handleCancel}
-                                className="border border-gray-300 text-gray-700 px-5 py-2.5 rounded-lg hover:bg-gray-50"
-                            >
+                            <Button type="button" variant="secondary" onClick={handleCancel}>
                                 Annuler
-                            </button>
+                            </Button>
 
-                            <button
+                            <Button
                                 type="button"
+                                variant="primary"
                                 onClick={handleSave}
                                 disabled={
                                     saving ||
                                     !id_exercice ||
                                     formLines.length === 0
                                 }
-                                className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white px-5 py-2.5 rounded-lg"
                             >
                                 {saving
                                     ? 'Enregistrement...'
                                     : 'Enregistrer'}
-                            </button>
+                            </Button>
 
                         </div>
 
-                    </div>
+                    </Card>
 
                 )}
 
@@ -611,28 +576,40 @@ export default function SituationBudgetaireIndex({
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-                    <div className="bg-white shadow rounded-xl p-6">
+                    <div className="bg-navy-800 rounded-xl p-6 flex items-center gap-4">
 
-                        <p className="text-gray-500">
-                            Montant total de l'exercice
-                        </p>
+                        <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                            <Wallet size={22} className="text-gold-400" />
+                        </div>
 
-                        <p className="text-2xl font-bold text-blue-600 mt-1">
-                            {formatMontant(montant_global)}
-                        </p>
+                        <div>
+                            <p className="text-navy-200 text-sm">
+                                Montant total de l'exercice
+                            </p>
+
+                            <p className="text-2xl font-bold text-white mt-0.5">
+                                {formatMontant(montant_global)}
+                            </p>
+                        </div>
 
                     </div>
 
 
-                    <div className="bg-white shadow rounded-xl p-6">
+                    <div className="bg-white shadow-card border border-cream-200 rounded-xl p-6 flex items-center gap-4">
 
-                        <p className="text-gray-500">
-                            Total reste à payer
-                        </p>
+                        <div className="w-12 h-12 rounded-full bg-gold-100 flex items-center justify-center shrink-0">
+                            <TrendingUp size={22} className="text-gold-700" />
+                        </div>
 
-                        <p className="text-2xl font-bold text-orange-600 mt-1">
-                            {formatMontant(reste_global)}
-                        </p>
+                        <div>
+                            <p className="text-gray-500 text-sm">
+                                Total reste à payer
+                            </p>
+
+                            <p className="text-2xl font-bold text-gold-700 mt-0.5">
+                                {formatMontant(reste_global)}
+                            </p>
+                        </div>
 
                     </div>
 
@@ -643,21 +620,10 @@ export default function SituationBudgetaireIndex({
                     TABLEAU DE LA SITUATION EXISTANTE
                 ========================================================= */}
 
-                <div className="bg-white shadow rounded-xl p-6">
-
-                    <div className="mb-5">
-
-                        <h3 className="text-lg font-semibold text-gray-700">
-                            Détail de la situation budgétaire
-                        </h3>
-
-                        <p className="text-sm text-gray-500 mt-1">
-                            Tous les types de catégories de l'exercice sont
-                            affichés.
-                        </p>
-
-                    </div>
-
+                <Card
+                    title="Détail de la situation budgétaire"
+                    subtitle="Tous les types de catégories de l'exercice sont affichés."
+                >
 
                     {lignes.length > 0 ? (
 
@@ -667,9 +633,9 @@ export default function SituationBudgetaireIndex({
 
                                 <thead>
 
-                                    <tr className="bg-gray-50 border-b">
+                                    <tr className="bg-cream-100">
 
-                                        <th className="p-3 text-left">
+                                        <th className="p-3 text-left rounded-l-lg">
                                             N° de compte
                                         </th>
 
@@ -681,7 +647,7 @@ export default function SituationBudgetaireIndex({
                                             Montant
                                         </th>
 
-                                        <th className="p-3 text-right">
+                                        <th className="p-3 text-right rounded-r-lg">
                                             Reste à payer
                                         </th>
 
@@ -699,14 +665,14 @@ export default function SituationBudgetaireIndex({
                                                     ligne.id_type_categorie ??
                                                     index
                                                 }
-                                                className="border-b"
+                                                className="border-b border-cream-200 hover:bg-cream-50"
                                             >
 
                                                 <td className="p-3">
                                                     {ligne.n_compte || '-'}
                                                 </td>
 
-                                                <td className="p-3">
+                                                <td className="p-3 font-medium text-navy-900">
 
                                                     {ligne.libelle ??
                                                     ligne.typeCategorie
@@ -715,13 +681,13 @@ export default function SituationBudgetaireIndex({
 
                                                 </td>
 
-                                                <td className="p-3 text-right">
+                                                <td className="p-3 text-right text-navy-800">
                                                     {formatMontant(
                                                         ligne.montant
                                                     )}
                                                 </td>
 
-                                                <td className="p-3 text-right">
+                                                <td className="p-3 text-right text-gold-700">
                                                     {formatMontant(
                                                         ligne.reste_a_payer
                                                     )}
@@ -754,19 +720,15 @@ export default function SituationBudgetaireIndex({
 
                         <div className="flex justify-end mt-5">
 
-                            <button
-                                type="button"
-                                onClick={handleEdit}
-                                className="bg-yellow-500 hover:bg-yellow-600 text-white px-5 py-2.5 rounded-lg"
-                            >
-                                Modifier
-                            </button>
+                            <Button type="button" variant="secondary" onClick={handleEdit}>
+                                <Pencil size={16} /> Modifier
+                            </Button>
 
                         </div>
 
                     )}
 
-                </div>
+                </Card>
 
             </div>
 

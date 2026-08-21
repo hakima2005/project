@@ -5,9 +5,10 @@ namespace App\Services\ETL;
 use App\Models\Devis;
 use App\Models\BonCommande;
 use App\Models\Fournisseur;
+use App\Models\DecretTva;
+use App\Models\DecretRas;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
 class DevisETLService
@@ -17,13 +18,22 @@ class DevisETLService
      * IMPORT D'UN DOCUMENT DE DEVIS
      * =========================================================
      *
-     * 1. Stocker le document
-     * 2. Extraire le texte
-     * 3. Parser les informations
-     * 4. Chercher le BC
-     * 5. Chercher ou créer le fournisseur
-     * 6. Vérifier les doublons
-     * 7. Créer le devis
+     * Le fournisseur transmet un PDF.
+     *
+     * Le module ETL :
+     *
+     * 1. Stocke le document
+     * 2. Extrait le texte du PDF
+     * 3. Extrait les informations nécessaires
+     * 4. Recherche le Bon de Commande
+     * 5. Recherche ou crée le fournisseur
+     * 6. Vérifie les doublons
+     * 7. Récupère le taux TVA du décret
+     * 8. Récupère le taux RAS du décret
+     * 9. Calcule TVA
+     * 10. Calcule RAS
+     * 11. Calcule TTC
+     * 12. Crée le devis
      */
     public function import(UploadedFile $file): Devis
     {
@@ -66,6 +76,19 @@ class DevisETLService
          * =====================================================
          * 4. VALIDATION DES INFORMATIONS
          * =====================================================
+         *
+         * IMPORTANT :
+         *
+         * Le fournisseur fournit uniquement :
+         *
+         * - référence devis
+         * - date devis
+         * - référence BC
+         * - fournisseur
+         * - HT
+         *
+         * TVA / RAS / TTC NE SONT PAS lus depuis le PDF.
+         * Ils sont calculés automatiquement par le système.
          */
 
         $required = [
@@ -74,9 +97,6 @@ class DevisETLService
             'reference_bc',
             'raison_sociale',
             'montant_ht',
-            'montant_tva',
-            'montant_retenue',
-            'montant_ttc',
         ];
 
         foreach ($required as $field) {
@@ -113,23 +133,37 @@ class DevisETLService
 
         /*
          * =====================================================
-         * 6. RECHERCHE DU FOURNISSEUR
+         * 6. CODE NATURE PRESTATION
+         * =====================================================
+         */
+
+        $codeNatPrest = $bc->code_nat_prest;
+
+        if (!$codeNatPrest) {
+
+            throw new RuntimeException(
+                "Le Bon de Commande {$bc->reference_bc} "
+                . "ne possède pas de code nature prestation."
+            );
+        }
+
+        /*
+         * =====================================================
+         * 7. RECHERCHE DU FOURNISSEUR
          * =====================================================
          *
-         * ORDRE DE PRIORITÉ :
+         * Ordre de priorité :
          *
          * 1. ICE
          * 2. IF
          * 3. Raison sociale
-         * 4. Création uniquement si aucun fournisseur
-         *    correspondant n'existe.
          */
 
         $fournisseur = null;
 
         /*
          * -----------------------------------------------------
-         * 6.1 Recherche par ICE
+         * 7.1 Recherche par ICE
          * -----------------------------------------------------
          */
 
@@ -143,7 +177,7 @@ class DevisETLService
 
         /*
          * -----------------------------------------------------
-         * 6.2 Recherche par identifiant fiscal
+         * 7.2 Recherche par IF
          * -----------------------------------------------------
          */
 
@@ -160,7 +194,7 @@ class DevisETLService
 
         /*
          * -----------------------------------------------------
-         * 6.3 Recherche par raison sociale
+         * 7.3 Recherche par raison sociale
          * -----------------------------------------------------
          */
 
@@ -174,20 +208,16 @@ class DevisETLService
 
         /*
          * =====================================================
-         * 7. CREATION DU FOURNISSEUR
+         * 8. CREATION DU FOURNISSEUR SI NECESSAIRE
          * =====================================================
-         *
-         * Avant la création, on refait les vérifications
-         * ICE / IF afin d'éviter une violation de contrainte
-         * UNIQUE dans PostgreSQL.
          */
 
         if (!$fournisseur) {
 
             /*
-             * Si l'ICE existe déjà, on récupère directement
-             * le fournisseur correspondant.
+             * Dernière vérification ICE
              */
+
             if (!empty($data['ICE'])) {
 
                 $fournisseur = Fournisseur::where(
@@ -197,9 +227,9 @@ class DevisETLService
             }
 
             /*
-             * Si l'IF existe déjà, on récupère directement
-             * le fournisseur correspondant.
+             * Dernière vérification IF
              */
+
             if (
                 !$fournisseur &&
                 !empty($data['identifiant_fiscal'])
@@ -214,8 +244,7 @@ class DevisETLService
 
         /*
          * -----------------------------------------------------
-         * Si toujours aucun fournisseur :
-         * création.
+         * Création
          * -----------------------------------------------------
          */
 
@@ -245,10 +274,8 @@ class DevisETLService
             } catch (\Illuminate\Database\QueryException $e) {
 
                 /*
-                 * Cas de sécurité :
-                 * si un fournisseur avec le même ICE a été
-                 * trouvé au moment exact de l'insertion,
-                 * on essaie de le récupérer.
+                 * Une autre vérification en cas de
+                 * contrainte UNIQUE.
                  */
 
                 if (!empty($data['ICE'])) {
@@ -256,6 +283,17 @@ class DevisETLService
                     $fournisseur = Fournisseur::where(
                         'ICE',
                         $data['ICE']
+                    )->first();
+                }
+
+                if (
+                    !$fournisseur &&
+                    !empty($data['identifiant_fiscal'])
+                ) {
+
+                    $fournisseur = Fournisseur::where(
+                        'identifiant_fiscal',
+                        $data['identifiant_fiscal']
                     )->first();
                 }
 
@@ -271,7 +309,7 @@ class DevisETLService
 
         /*
          * =====================================================
-         * 8. VERIFICATION DES DOUBLONS DE DEVIS
+         * 9. VERIFICATION DES DOUBLONS
          * =====================================================
          */
 
@@ -298,7 +336,102 @@ class DevisETLService
 
         /*
          * =====================================================
-         * 9. CREATION DU DEVIS
+         * 10. RECUPERATION DU TAUX TVA
+         * =====================================================
+         *
+         * On cherche le dernier décret TVA applicable
+         * à la date du devis.
+         */
+
+        $tauxTva = DecretTva::where(
+            'code_nat_prest',
+            $codeNatPrest
+        )
+            ->where(
+                'date',
+                '<=',
+                $data['date_devis']
+            )
+            ->orderByDesc('date')
+            ->value('taux');
+
+        /*
+         * Aucun décret = TVA 0
+         */
+
+        $tauxTva = $tauxTva !== null
+            ? (float) $tauxTva
+            : 0;
+
+        /*
+         * =====================================================
+         * 11. RECUPERATION DU TAUX RAS
+         * =====================================================
+         *
+         * On cherche le dernier décret RAS applicable
+         * à la date du devis.
+         */
+
+        $tauxRas = DecretRas::where(
+            'code_nat_prest',
+            $codeNatPrest
+        )
+            ->where(
+                'date',
+                '<=',
+                $data['date_devis']
+            )
+            ->orderByDesc('date')
+            ->value('taux');
+
+        /*
+         * Aucun décret = RAS 0
+         */
+
+        $tauxRas = $tauxRas !== null
+            ? (float) $tauxRas
+            : 0;
+
+        /*
+         * =====================================================
+         * 12. CALCUL DES MONTANTS
+         * =====================================================
+         */
+
+        $montantHt = (float) $data['montant_ht'];
+
+        /*
+         * TVA = HT × taux TVA / 100
+         */
+
+        $montantTva = round(
+            $montantHt * $tauxTva / 100,
+            2
+        );
+
+        /*
+         * RAS = HT × taux RAS / 100
+         */
+
+        $montantRetenue = round(
+            $montantHt * $tauxRas / 100,
+            2
+        );
+
+        /*
+         * TTC = HT + TVA
+         *
+         * La retenue RAS reste séparée.
+         */
+
+        $montantTtc = round(
+            $montantHt + $montantTva,
+            2
+        );
+
+        /*
+         * =====================================================
+         * 13. CREATION DU DEVIS
          * =====================================================
          */
 
@@ -311,19 +444,23 @@ class DevisETLService
                 $data['date_devis'],
 
             'montant_ht' =>
-                $data['montant_ht'],
+                $montantHt,
 
             'montant_tva' =>
-                $data['montant_tva'],
+                $montantTva,
 
             'montant_retenue' =>
-                $data['montant_retenue'],
+                $montantRetenue,
 
             'montant_ttc' =>
-                $data['montant_ttc'],
+                $montantTtc,
 
             'piece_jointe' =>
                 $path,
+
+            /*
+             * Nouveau devis = Reçu
+             */
 
             'id_statut' =>
                 1,
@@ -366,6 +503,13 @@ class DevisETLService
      * =========================================================
      * PARSING DU DOCUMENT
      * =========================================================
+     *
+     * Le parser accepte les formats :
+     *
+     * Référence devis : DEV-2026-004
+     * Référence devis DEV-2026-004
+     *
+     * Même chose pour les autres champs.
      */
 
     private function parseDocument(
@@ -382,7 +526,7 @@ class DevisETLService
 
         if (
             preg_match(
-                '/Référence\s+devis\s+([A-Z0-9\-]+)/iu',
+                '/Référence\s+devis\s*:?\s*([A-Z0-9\-]+)/iu',
                 $text,
                 $matches
             )
@@ -392,7 +536,6 @@ class DevisETLService
                 trim($matches[1]);
         }
 
-
         /*
          * -----------------------------------------------------
          * Date devis
@@ -401,7 +544,7 @@ class DevisETLService
 
         if (
             preg_match(
-                '/Date\s+(\d{2}\/\d{2}\/\d{4})/iu',
+                '/Date\s*:?\s*(\d{2}\/\d{2}\/\d{4})/iu',
                 $text,
                 $matches
             )
@@ -419,7 +562,6 @@ class DevisETLService
             }
         }
 
-
         /*
          * -----------------------------------------------------
          * Référence BC
@@ -428,7 +570,7 @@ class DevisETLService
 
         if (
             preg_match(
-                '/Référence\s+BC\s+([A-Z0-9\-]+)/iu',
+                '/Référence\s+BC\s*:?\s*([A-Z0-9\-]+)/iu',
                 $text,
                 $matches
             )
@@ -438,7 +580,6 @@ class DevisETLService
                 trim($matches[1]);
         }
 
-
         /*
          * -----------------------------------------------------
          * Fournisseur
@@ -447,7 +588,7 @@ class DevisETLService
 
         if (
             preg_match(
-                '/Raison\s+sociale\s+(.+)/iu',
+                '/Raison\s+sociale\s*:?\s*(.+?)(?=\R|$)/iu',
                 $text,
                 $matches
             )
@@ -457,7 +598,6 @@ class DevisETLService
                 trim($matches[1]);
         }
 
-
         /*
          * -----------------------------------------------------
          * Identifiant fiscal
@@ -466,7 +606,7 @@ class DevisETLService
 
         if (
             preg_match(
-                '/\bIF\s+([A-Z0-9]+)/iu',
+                '/\bIF\s*:?\s*([A-Z0-9]+)/iu',
                 $text,
                 $matches
             )
@@ -476,7 +616,6 @@ class DevisETLService
                 trim($matches[1]);
         }
 
-
         /*
          * -----------------------------------------------------
          * ICE
@@ -485,7 +624,7 @@ class DevisETLService
 
         if (
             preg_match(
-                '/\bICE\s+([0-9]+)/iu',
+                '/\bICE\s*:?\s*([0-9]+)/iu',
                 $text,
                 $matches
             )
@@ -495,7 +634,6 @@ class DevisETLService
                 trim($matches[1]);
         }
 
-
         /*
          * -----------------------------------------------------
          * Téléphone
@@ -504,7 +642,7 @@ class DevisETLService
 
         if (
             preg_match(
-                '/Téléphone\s+([0-9\s]+)/iu',
+                '/Téléphone\s*:?\s*([0-9\s\+\-]+)/iu',
                 $text,
                 $matches
             )
@@ -514,7 +652,6 @@ class DevisETLService
                 trim($matches[1]);
         }
 
-
         /*
          * -----------------------------------------------------
          * Email
@@ -523,7 +660,7 @@ class DevisETLService
 
         if (
             preg_match(
-                '/Email\s+([^\s]+)/iu',
+                '/Email\s*:?\s*([^\s]+)/iu',
                 $text,
                 $matches
             )
@@ -533,16 +670,18 @@ class DevisETLService
                 trim($matches[1]);
         }
 
-
         /*
          * -----------------------------------------------------
          * Montant HT
          * -----------------------------------------------------
+         *
+         * IMPORTANT :
+         * C'est le seul montant récupéré depuis le PDF.
          */
 
         if (
             preg_match(
-                '/Montant\s+HT\s+([\d\s.,]+)\s*MAD/iu',
+                '/Montant\s+HT\s*:?\s*([\d\s.,]+)\s*MAD/iu',
                 $text,
                 $matches
             )
@@ -552,64 +691,6 @@ class DevisETLService
                 $this->parseAmount($matches[1]);
         }
 
-
-        /*
-         * -----------------------------------------------------
-         * TVA
-         * -----------------------------------------------------
-         */
-
-        if (
-            preg_match(
-                '/TVA\s+[\d.,]+\s*%\s*[—\-]\s*([\d\s.,]+)\s*MAD/iu',
-                $text,
-                $matches
-            )
-        ) {
-
-            $data['montant_tva'] =
-                $this->parseAmount($matches[1]);
-        }
-
-
-        /*
-         * -----------------------------------------------------
-         * RAS
-         * -----------------------------------------------------
-         */
-
-        if (
-            preg_match(
-                '/Retenue\s+à\s+la\s+source\s+\(RAS\)\s+[\d.,]+\s*%\s*[—\-]\s*([\d\s.,]+)\s*MAD/iu',
-                $text,
-                $matches
-            )
-        ) {
-
-            $data['montant_retenue'] =
-                $this->parseAmount($matches[1]);
-        }
-
-
-        /*
-         * -----------------------------------------------------
-         * TTC
-         * -----------------------------------------------------
-         */
-
-        if (
-            preg_match(
-                '/Montant\s+TTC\s+([\d\s.,]+)\s*MAD/iu',
-                $text,
-                $matches
-            )
-        ) {
-
-            $data['montant_ttc'] =
-                $this->parseAmount($matches[1]);
-        }
-
-
         /*
          * -----------------------------------------------------
          * Observation
@@ -618,7 +699,6 @@ class DevisETLService
 
         $data['observation'] =
             'Importé automatiquement par le module ETL.';
-
 
         return $data;
     }
@@ -637,8 +717,9 @@ class DevisETLService
         $amount = trim($amount);
 
         /*
-         * Suppression des espaces.
+         * Suppression des espaces normaux.
          */
+
         $amount = str_replace(
             ' ',
             '',
@@ -646,11 +727,24 @@ class DevisETLService
         );
 
         /*
+         * Suppression des espaces insécables
+         * éventuellement présents dans un PDF.
+         */
+
+        $amount = str_replace(
+            "\xc2\xa0",
+            '',
+            $amount
+        );
+
+        /*
          * Gestion des formats :
          *
-         * 1234,50
-         * 1234.50
-         * 1 234,50
+         * 10000
+         * 10000.50
+         * 10000,50
+         * 10.000,50
+         * 10,000.50
          */
 
         if (
@@ -659,26 +753,53 @@ class DevisETLService
         ) {
 
             /*
-             * Exemple :
-             * 1.234,50
+             * Si la virgule apparaît après le point,
+             * on considère :
              *
-             * Le point est séparateur de milliers
-             * et la virgule est le séparateur décimal.
+             * 10.000,50
+             *
+             * comme format européen.
              */
 
-            $amount = str_replace(
-                '.',
-                '',
-                $amount
-            );
+            if (
+                strrpos($amount, ',') >
+                strrpos($amount, '.')
+            ) {
 
-            $amount = str_replace(
-                ',',
-                '.',
-                $amount
-            );
+                $amount = str_replace(
+                    '.',
+                    '',
+                    $amount
+                );
+
+                $amount = str_replace(
+                    ',',
+                    '.',
+                    $amount
+                );
+
+            } else {
+
+                /*
+                 * Format :
+                 *
+                 * 10,000.50
+                 */
+
+                $amount = str_replace(
+                    ',',
+                    '',
+                    $amount
+                );
+            }
 
         } else {
+
+            /*
+             * Format :
+             *
+             * 10000,50
+             */
 
             $amount = str_replace(
                 ',',

@@ -156,6 +156,7 @@ class BonCommandeController extends Controller
             'naturePrestation',
             'designations.unite',
             'devis.fournisseur',
+            'devis.statut',
             'fournisseurs'
         )->findOrFail($reference);
 

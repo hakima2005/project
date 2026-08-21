@@ -1,4 +1,6 @@
 import AppLayout from '@/Layouts/AppLayout';
+import Card from '@/Components/ui/Card';
+import Button from '@/Components/ui/Button';
 import { Link, useForm } from '@inertiajs/react';
 
 export default function MaxNatureCreate({
@@ -42,21 +44,10 @@ export default function MaxNatureCreate({
     return (
         <AppLayout title="Ajouter une max nature">
 
-            <div className="bg-white rounded-xl shadow p-6">
-
-                {/* Header */}
-                <div className="mb-6">
-
-                    <h3 className="text-lg font-semibold text-gray-700">
-                        Ajouter une max nature
-                    </h3>
-
-                    <p className="text-sm text-gray-500 mt-1">
-                        Définir le montant maximum pour chaque nature de prestation.
-                    </p>
-
-                </div>
-
+            <Card
+                title="Ajouter une max nature"
+                subtitle="Définir le montant maximum pour chaque nature de prestation."
+            >
 
                 <form onSubmit={handleSubmit}>
 
@@ -70,7 +61,7 @@ export default function MaxNatureCreate({
                         <select
                             value={data.id_exercice}
                             onChange={handleExerciceChange}
-                            className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white"
+                            className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
                         >
 
                             <option value="">
@@ -91,7 +82,7 @@ export default function MaxNatureCreate({
                         </select>
 
                         {errors.id_exercice && (
-                            <p className="text-red-500 text-xs mt-1">
+                            <p className="text-rose-500 text-xs mt-1">
                                 {errors.id_exercice}
                             </p>
                         )}
@@ -108,17 +99,17 @@ export default function MaxNatureCreate({
 
                                 <thead>
 
-                                    <tr className="bg-gray-50 text-gray-600">
+                                    <tr className="bg-cream-100 text-gray-600">
 
-                                        <th className="text-left p-3 border-b">
+                                        <th className="text-left p-3 rounded-l-lg">
                                             Code
                                         </th>
 
-                                        <th className="text-left p-3 border-b">
+                                        <th className="text-left p-3">
                                             Nature de prestation
                                         </th>
 
-                                        <th className="text-right p-3 border-b">
+                                        <th className="text-right p-3 rounded-r-lg">
                                             Montant maximum
                                         </th>
 
@@ -135,10 +126,10 @@ export default function MaxNatureCreate({
 
                                             <tr
                                                 key={nature.code_nat_prest}
-                                                className="border-b hover:bg-gray-50"
+                                                className="border-b border-cream-200 hover:bg-cream-50"
                                             >
 
-                                                <td className="p-3 font-mono text-blue-600">
+                                                <td className="p-3 font-mono text-navy-700">
                                                     {nature.code_nat_prest}
                                                 </td>
 
@@ -163,7 +154,7 @@ export default function MaxNatureCreate({
                                                                 e.target.value
                                                             )
                                                         }
-                                                        className="w-48 border border-gray-300 rounded-lg px-3 py-2 text-right"
+                                                        className="w-48 border border-gray-300 rounded-lg px-3 py-2 text-right text-sm focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
                                                         placeholder="0.00"
                                                     />
 
@@ -171,7 +162,7 @@ export default function MaxNatureCreate({
                                                         `natures.${index}.montant_max`
                                                     ] && (
 
-                                                        <p className="text-red-500 text-xs mt-1">
+                                                        <p className="text-rose-500 text-xs mt-1">
                                                             {
                                                                 errors[
                                                                     `natures.${index}.montant_max`
@@ -210,7 +201,7 @@ export default function MaxNatureCreate({
 
                     ) : (
 
-                        <div className="p-8 text-center text-gray-400 border rounded-lg">
+                        <div className="p-8 text-center text-gray-400 border border-cream-200 rounded-lg">
                             Veuillez sélectionner un exercice.
                         </div>
 
@@ -220,29 +211,22 @@ export default function MaxNatureCreate({
                     {/* Boutons */}
                     <div className="flex gap-3 mt-6">
 
-                        <button
-                            type="submit"
-                            disabled={processing || !data.id_exercice}
-                            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
-                        >
+                        <Button type="submit" variant="primary" disabled={processing || !data.id_exercice}>
                             {processing
                                 ? 'Enregistrement...'
                                 : 'Enregistrer'}
-                        </button>
+                        </Button>
 
 
-                        <Link
-                            href="/max-nature"
-                            className="bg-gray-200 px-6 py-2 rounded-lg"
-                        >
+                        <Button as={Link} href="/max-nature" variant="secondary">
                             Annuler
-                        </Link>
+                        </Button>
 
                     </div>
 
                 </form>
 
-            </div>
+            </Card>
 
         </AppLayout>
     );

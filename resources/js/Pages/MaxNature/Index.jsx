@@ -1,5 +1,8 @@
 import AppLayout from '@/Layouts/AppLayout';
+import Card from '@/Components/ui/Card';
+import Button from '@/Components/ui/Button';
 import { Link, router } from '@inertiajs/react';
+import { Plus } from 'lucide-react';
 
 export default function MaxNatureIndex({
     exercices = [],
@@ -33,31 +36,15 @@ export default function MaxNatureIndex({
     return (
         <AppLayout title="Max Nature">
 
-            <div className="bg-white rounded-xl shadow p-6">
-
-                {/* Header */}
-                <div className="flex items-center justify-between mb-6">
-
-                    <div>
-                        <h3 className="text-lg font-semibold text-gray-700">
-                            Max Nature
-                        </h3>
-
-                        <p className="text-sm text-gray-500 mt-1">
-                            Montants maximum par nature de prestation
-                        </p>
-                    </div>
-
-                    {/* زر الإضافة اللي كان موجود عندك أصلاً */}
-                    <Link
-                        href="/max-nature/create"
-                        className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700"
-                    >
-                        + Ajouter une max nature
-                    </Link>
-
-                </div>
-
+            <Card
+                title="Max Nature"
+                subtitle="Montants maximum par nature de prestation"
+                actions={
+                    <Button as={Link} href="/max-nature/create" variant="primary">
+                        <Plus size={16} /> Ajouter une max nature
+                    </Button>
+                }
+            >
 
                 {/* Exercice */}
                 <div className="flex items-center gap-3 mb-6">
@@ -69,7 +56,7 @@ export default function MaxNatureIndex({
                     <select
                         value={id_exercice || ''}
                         onChange={handleExerciceChange}
-                        className="border border-gray-300 rounded-lg px-4 py-2 bg-white"
+                        className="border border-gray-300 rounded-lg px-4 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-navy-300 focus:border-navy-400"
                     >
                         <option value="">
                             -- Choisir --
@@ -98,17 +85,17 @@ export default function MaxNatureIndex({
 
                             <thead>
 
-                                <tr className="bg-gray-50 text-gray-600">
+                                <tr className="bg-cream-100 text-gray-600">
 
-                                    <th className="text-left p-3 border-b">
+                                    <th className="text-left p-3 rounded-l-lg">
                                         Code
                                     </th>
 
-                                    <th className="text-left p-3 border-b">
+                                    <th className="text-left p-3">
                                         Nature de prestation
                                     </th>
 
-                                    <th className="text-right p-3 border-b">
+                                    <th className="text-right p-3 rounded-r-lg">
                                         Montant maximum
                                     </th>
 
@@ -125,10 +112,10 @@ export default function MaxNatureIndex({
 
                                         <tr
                                             key={item.id}
-                                            className="border-b hover:bg-gray-50"
+                                            className="border-b border-cream-200 hover:bg-cream-50"
                                         >
 
-                                            <td className="p-3 font-mono text-blue-600">
+                                            <td className="p-3 font-mono text-navy-700">
                                                 {item.code_nat_prest}
                                             </td>
 
@@ -136,7 +123,7 @@ export default function MaxNatureIndex({
                                                 {item.nature_prestation?.intitule_fr || '-'}
                                             </td>
 
-                                            <td className="p-3 text-right font-medium">
+                                            <td className="p-3 text-right font-medium text-navy-800">
                                                 {formatMontant(
                                                     item.montant_max
                                                 )}
@@ -152,7 +139,7 @@ export default function MaxNatureIndex({
 
                                         <td
                                             colSpan="3"
-                                            className="p-6 text-center text-gray-400"
+                                            className="p-8 text-center text-gray-400"
                                         >
                                             Aucun montant maximum enregistré
                                             pour cet exercice.
@@ -176,7 +163,7 @@ export default function MaxNatureIndex({
 
                 )}
 
-            </div>
+            </Card>
 
         </AppLayout>
     );
